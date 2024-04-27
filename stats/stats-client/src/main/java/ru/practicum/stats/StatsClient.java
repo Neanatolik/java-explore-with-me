@@ -32,17 +32,15 @@ public class StatsClient extends BaseClient {
 
     public ResponseEntity<Object> getHits(List<String> uris, String start, String end, boolean unique) {
         Map<String, Object> parameters = Map.of("start", encodeValue(start), "end", encodeValue(end), "unique", unique);
-        System.out.println("URIS: " + Objects.isNull(uris));
         StringBuilder path = new StringBuilder("?start={start}&end={end}&unique={unique}");
         if (Objects.nonNull(uris)) {
             path.append("&uris=").append(String.join("&uris=", uris));
         }
-        System.out.println("PATH: " + path);
         return get(path.toString(), parameters);
     }
 
     @SneakyThrows
     private String encodeValue(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

@@ -37,7 +37,7 @@ public class StatsController {
 
     @SneakyThrows
     private String decode(String value) {
-        return URLDecoder.decode(value, StandardCharsets.UTF_8.toString());
+        return URLDecoder.decode(value, StandardCharsets.UTF_8);
     }
 
 

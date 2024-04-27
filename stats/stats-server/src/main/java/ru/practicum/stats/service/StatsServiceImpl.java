@@ -20,20 +20,17 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<ViewStatsDtoIn> getStats(List<String> uris, String start, String end, boolean unique) {
         List<ViewStatsDtoIn> viewStatsDtos;
-        System.out.println("WHAT: " + Objects.isNull(uris));
         if (Objects.nonNull(uris)) {
-            System.out.println("URI: " + String.join(" ", uris));
             if (unique) {
-                System.out.println("PAR3: " + start + " " + end);
-                viewStatsDtos = hitRepository.countUnique(start, end, uris);
+                viewStatsDtos = hitRepository.countUniqueByUris(start, end, uris);
             } else {
-                viewStatsDtos = hitRepository.countUnique2(start, end, uris);
+                viewStatsDtos = hitRepository.countNonUniqueByUris(start, end, uris);
             }
         } else {
             if (unique) {
-                viewStatsDtos = hitRepository.countFromStartToEndByNotUnique(start, end);
+                viewStatsDtos = hitRepository.countUniqueWithoutUris(start, end);
             } else {
-                viewStatsDtos = hitRepository.countFromStartToEndByNotUnique(start, end);
+                viewStatsDtos = hitRepository.countNonUniqueWithoutUris(start, end);
             }
         }
         return viewStatsDtos;
