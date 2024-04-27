@@ -21,8 +21,17 @@ services:
       - POSTGRES_PASSWORD=iamroot
 
   ewm-service:
+    build: main-service
+    image: ewm-server-image
+    container_name: main-server
     ports:
       - "8080:8080"
+    depends_on:
+      - ewm-db
 
   ewm-db:
+    container_name: ewm-db
     image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=iamroot
