@@ -1,6 +1,6 @@
 package ru.practicum;
 
-public class Stats_Dto {
+public class StatsDto {
     public static void main(String[] args) {
     }
 }
