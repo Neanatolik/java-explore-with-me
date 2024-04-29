@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.dto.ViewStatsDtoIn;
 import ru.practicum.hit.repository.HitRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<ViewStatsDtoIn> getStats(List<String> uris, String start, String end, boolean unique) {
+    public List<ViewStatsDtoIn> getStats(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
         List<ViewStatsDtoIn> viewStatsDtos;
         if (Objects.nonNull(uris)) {
             if (unique) {

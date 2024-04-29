@@ -1,8 +1,8 @@
 package ru.practicum.stats;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.ViewStatsDtoIn;
 import ru.practicum.stats.service.StatsService;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,17 +27,11 @@ public class StatsController {
 
     @GetMapping
     public List<ViewStatsDtoIn> getHits(@RequestParam(required = false) List<String> uris,
-                                        @RequestParam String start,
-                                        @RequestParam String end,
+                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                         @RequestParam(defaultValue = "false") boolean unique) {
-        log.info("GET /stats?uris={}&start={}&end={}&unique={}", Objects.nonNull(uris) ? String.join("&uris", uris) : "", decode(start), decode(end), unique);
-        return statsService.getStats(uris, decode(start), decode(end), unique);
+        log.info("GET /stats?uris={}&start={}&end={}&unique={}", Objects.nonNull(uris) ? String.join("&uris", uris) : "", start, end, unique);
+        return statsService.getStats(uris, start, end, unique);
     }
-
-    @SneakyThrows
-    private String decode(String value) {
-        return URLDecoder.decode(value, StandardCharsets.UTF_8);
-    }
-
 
 }

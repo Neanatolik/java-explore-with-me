@@ -1,6 +1,5 @@
 package ru.practicum.stats;
 
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -10,8 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.client.BaseClient;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,8 +28,8 @@ public class StatsClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getHits(List<String> uris, String start, String end, boolean unique) {
-        Map<String, Object> parameters = Map.of("start", encodeValue(start), "end", encodeValue(end), "unique", unique);
+    public ResponseEntity<Object> getHits(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
+        Map<String, Object> parameters = Map.of("start", start, "end", end, "unique", unique);
         StringBuilder path = new StringBuilder("?start={start}&end={end}&unique={unique}");
         if (Objects.nonNull(uris)) {
             path.append("&uris=").append(String.join("&uris=", uris));
@@ -39,8 +37,4 @@ public class StatsClient extends BaseClient {
         return get(path.toString(), parameters);
     }
 
-    @SneakyThrows
-    private String encodeValue(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
-    }
 }
