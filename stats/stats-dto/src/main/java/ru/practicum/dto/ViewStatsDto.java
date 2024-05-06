@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ViewStatsDto implements ViewStatsDtoIn {
+public class ViewStatsDto {
     private String app;
     private String uri;
     private Integer hits;

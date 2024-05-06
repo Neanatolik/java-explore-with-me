@@ -2,6 +2,7 @@ package ru.practicum.stats.model;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.dto.ViewStatsDto;
+import ru.practicum.dto.ViewStatsDtoIn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,14 @@ import java.util.List;
 @UtilityClass
 public class ViewStatsMapper {
     public ViewStatsDto toViewStatsDto(ViewStats viewStats) {
+        return new ViewStatsDto(
+                viewStats.getApp(),
+                viewStats.getUri(),
+                viewStats.getHits()
+        );
+    }
+
+    public ViewStatsDto fromViewStatsDtoIn(ViewStatsDtoIn viewStats) {
         return new ViewStatsDto(
                 viewStats.getApp(),
                 viewStats.getUri(),
@@ -28,6 +37,14 @@ public class ViewStatsMapper {
         List<ViewStatsDto> dtoList = new ArrayList<>();
         for (ViewStats viewStats : viewStatsList) {
             dtoList.add(toViewStatsDto(viewStats));
+        }
+        return dtoList;
+    }
+
+    public List<ViewStatsDto> mapToListViewStats(Iterable<ViewStatsDtoIn> viewStatsList) {
+        List<ViewStatsDto> dtoList = new ArrayList<>();
+        for (ViewStatsDtoIn viewStats : viewStatsList) {
+            dtoList.add(fromViewStatsDtoIn(viewStats));
         }
         return dtoList;
     }

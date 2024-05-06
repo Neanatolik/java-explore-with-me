@@ -2,8 +2,10 @@ package ru.practicum.stats.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.dto.ViewStatsDtoIn;
 import ru.practicum.hit.repository.HitRepository;
+import ru.practicum.stats.model.ViewStatsMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +21,7 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<ViewStatsDtoIn> getStats(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
+    public List<ViewStatsDto> getStats(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
         List<ViewStatsDtoIn> viewStatsDtos;
         if (Objects.nonNull(uris)) {
             if (unique) {
@@ -34,6 +36,7 @@ public class StatsServiceImpl implements StatsService {
                 viewStatsDtos = hitRepository.countNonUniqueWithoutUris(start, end);
             }
         }
-        return viewStatsDtos;
+        List<ViewStatsDto> list = ViewStatsMapper.mapToListViewStats(viewStatsDtos);
+        return ViewStatsMapper.mapToListViewStats(viewStatsDtos);
     }
 }
