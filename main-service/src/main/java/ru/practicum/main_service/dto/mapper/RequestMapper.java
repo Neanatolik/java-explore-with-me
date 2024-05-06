@@ -28,7 +28,7 @@ public class RequestMapper {
         request.setCreated(LocalDateTime.now());
         request.setEvent(event);
         request.setRequester(user);
-        if (event.getParticipantLimit()==0) {
+        if (event.getParticipantLimit() == 0) {
             request.setStatus(StateState.CONFIRMED.toString());
         } else {
             request.setStatus(State.PENDING.toString());

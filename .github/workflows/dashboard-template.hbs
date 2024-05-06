@@ -446,7 +446,7 @@ body.theme-light code {
     }
 
     function toggleTheme() {
-        if (localStorage.getItem('theme') === 'theme-light') {
+        if (localStorage.getItem('theme')  == = 'theme-light') {
             setTheme('theme-dark');
         } else {
             setTheme('theme-light');
@@ -1250,7 +1250,7 @@ body.theme-light code {
 <script>
 (function () {
   var sliderChecked = true;
-  if (localStorage.getItem('theme') === 'theme-light') {
+  if (localStorage.getItem('theme')  == = 'theme-light') {
     setTheme('theme-light');
     sliderChecked = false;
   } else {
@@ -1292,7 +1292,7 @@ $(document).ready(function() {
 
 <script>
 $('#openAll').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
+let clickCount = $(this).data("clickCount")  ||  1
 switch (clickCount){
     case 1:
         {{#each aggregations}}
@@ -1318,7 +1318,7 @@ $(this).data("clickCount", clickCount)
 
 <script>
 $('#openAllRequests').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
+let clickCount = $(this).data("clickCount")  ||  1
 switch (clickCount){
     case 1:
         {{#each aggregations}}
@@ -1352,7 +1352,7 @@ $(this).data("clickCount", clickCount)
 
 <script>
 $('#openAllSkipped').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
+let clickCount = $(this).data("clickCount")  ||  1
 switch (clickCount){
     case 1:
         {{#each aggregations}}
@@ -1386,7 +1386,7 @@ $(this).data("clickCount", clickCount)
 
 <script>
 $('#openAllFailed').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
+let clickCount = $(this).data("clickCount")  ||  1
 let failedItemContent
 let failedItemHeading
 switch (clickCount){
@@ -1434,7 +1434,7 @@ function isJSON(data)
 
 function isXML(data)
 {
-    return (data.length > 0 && data[0] === '<');
+    return (data.length > 0 && data[0]  == = '<');
 }
 
 // see https://gist.github.com/sente/1083506/d2834134cd070dbcc08bf42ee27dabb746a1c54d#gistcomment-2254622
@@ -1526,7 +1526,7 @@ $(".prettyPrint").each(function () {
 window.onscroll = function() {scrollFunction()};
 
 function scrollFunction() {
-  if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+  if (document.body.scrollTop > 20  ||  document.documentElement.scrollTop > 20) {
     document.getElementById("topOfRequestsScreen").style.display = "block";
     document.getElementById("topOfFailuresScreen").style.display = "block";
     document.getElementById("topOfSkippedScreen").style.display = "block";
@@ -1607,7 +1607,7 @@ window.onload = function () {
 
       let items = document.querySelectorAll("." + this.id + ':not(.row)');
       items.forEach(function(elem) {
-        elem.style.display = elem.style.display == 'block' ? 'none' : 'block';
+        elem.style.display = elem.style.display  ==  'block' ? 'none' : 'block';
       })
     });
     menu.appendChild(li);
@@ -1655,12 +1655,12 @@ $("#filterInput").on("input paste", function() {
 
 <script>
 $('#showOnlyFailures').on('click', function(e) {
-    let clickCount = $(this).data("clickCount") || 1
-	$("#filterInput").val()!="" && clickCount==1 ? $("#filterInput").val('').trigger('input'): null;
+    let clickCount = $(this).data("clickCount")  ||  1
+	$("#filterInput").val() != "" && clickCount == 1 ? $("#filterInput").val('').trigger('input'): null;
     let selectedIteration = $('#iterationList li').filter(function () {
         return $(this).css('border-bottom').indexOf("solid") > -1 && $(this).hasClass('itFailed');
     });
-    selectedIteration.length || clickCount > 1 ? null : $("#iterationList li.itFailed")[0].click()
+    selectedIteration.length  ||  clickCount > 1 ? null : $("#iterationList li.itFailed")[0].click()
     $("#iterationList li.itPassed").toggle()
     $("div.bg-success [id*=requests]").parents('[class^="row iteration-"]').toggle();
     clickCount = clickCount > 1 ? 1 : ++clickCount;

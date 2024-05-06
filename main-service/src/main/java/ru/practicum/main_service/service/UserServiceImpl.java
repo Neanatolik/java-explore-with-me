@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(email)) {
             throw new BadRequest("", "");
         }
-        if (email.length()==254) return;
+        if (email.length() == 254) return;
         if (!EmailValidator.getInstance().isValid(email)) {
             throw new BadRequest("Укажите верное значение почты", "Неверное значение почты");
         }

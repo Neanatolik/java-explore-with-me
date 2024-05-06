@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void checkCategoryDto(CategoryDto categoryDto, String name) {
-        if (Objects.isNull(categoryDto)||categoryDto.getName().isBlank()) {
+        if (Objects.isNull(categoryDto) || categoryDto.getName().isBlank()) {
             throw new BadRequest("", "");
         }
         if (categoryDto.getName().length() > 50){

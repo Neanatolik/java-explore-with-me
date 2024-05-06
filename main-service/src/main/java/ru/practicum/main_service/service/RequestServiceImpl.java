@@ -67,7 +67,7 @@ public class RequestServiceImpl implements RequestService {
 
     private void checkParticipationLimit(int participantLimit, int requests) {
         System.out.println("participantLimit: " + participantLimit + " requests: " + requests);
-        if (participantLimit!=0) {
+        if (participantLimit != 0) {
             if (requests == participantLimit) {
                 throw new Conflict("", "Ошибка создания request");
             }
