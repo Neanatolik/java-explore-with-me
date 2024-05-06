@@ -42,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (Objects.isNull(newCategoryDto.getName()) || newCategoryDto.getName().isBlank()) {
             throw new BadRequest("", "");
         }
-        if (newCategoryDto.getName().length() > 50){
+        if (newCategoryDto.getName().length() > 50) {
             throw new BadRequest("","");
         }
         if (categoryRepository.existName(newCategoryDto.getName())) {
@@ -74,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (Objects.isNull(categoryDto) || categoryDto.getName().isBlank()) {
             throw new BadRequest("", "");
         }
-        if (categoryDto.getName().length() > 50){
+        if (categoryDto.getName().length() > 50) {
             throw new BadRequest("","");
         }
 

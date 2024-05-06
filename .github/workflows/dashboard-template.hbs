@@ -1293,7 +1293,7 @@ $(document).ready(function() {
 <script>
 $('#openAll').on('click', function(e) {
 let clickCount = $(this).data("clickCount")  ||  1
-switch (clickCount){
+switch (clickCount) {
     case 1:
         {{#each aggregations}}
             $('#folder-{{parent.id}}-iteration-{{parent.iteration}}').removeClass('collapsed')
@@ -1319,7 +1319,7 @@ $(this).data("clickCount", clickCount)
 <script>
 $('#openAllRequests').on('click', function(e) {
 let clickCount = $(this).data("clickCount")  ||  1
-switch (clickCount){
+switch (clickCount) {
     case 1:
         {{#each aggregations}}
         {{#each executions}}
@@ -1353,7 +1353,7 @@ $(this).data("clickCount", clickCount)
 <script>
 $('#openAllSkipped').on('click', function(e) {
 let clickCount = $(this).data("clickCount")  ||  1
-switch (clickCount){
+switch (clickCount) {
     case 1:
         {{#each aggregations}}
         {{#each executions}}
@@ -1389,7 +1389,7 @@ $('#openAllFailed').on('click', function(e) {
 let clickCount = $(this).data("clickCount")  ||  1
 let failedItemContent
 let failedItemHeading
-switch (clickCount){
+switch (clickCount) {
     case 1:
         {{#each summary.failures}}
             failedItemHeading = $('#fails-{{error.id}}');
@@ -1573,7 +1573,7 @@ window.onload = function () {
 
   // set display for all blocks of response
   var allItems = document.querySelectorAll('[class*=iteration-]');
-  allItems.forEach(function(elem){
+  allItems.forEach(function(elem) {
     elem.style.display = 'block';
   });
 
@@ -1583,7 +1583,7 @@ window.onload = function () {
 
   let menu = document.querySelector('#execution-menu .nav');
 
-  for(var i = 0; i < totalIterations; i++)
+  for (var i = 0; i < totalIterations; i++)
   {
     let li = document.createElement('li');
     li.appendChild(document.createTextNode((i + 1)));
@@ -1599,7 +1599,7 @@ window.onload = function () {
       })
 
       let allMenus = document.querySelectorAll('[id*=iteration-]');
-      allMenus.forEach(function(elem){
+      allMenus.forEach(function(elem) {
         elem.style.borderBottom = 'none';
       })
 
@@ -1630,7 +1630,7 @@ window.onload = function () {
 <!-- Create the Selected Iteration Label -->
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
     $(function() {
         $("#iterationList li").click(function() {
             document.getElementById('iterationSelected').innerHTML = "Iteration " + this.innerHTML + " selected"

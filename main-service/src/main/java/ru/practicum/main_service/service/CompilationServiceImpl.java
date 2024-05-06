@@ -83,7 +83,7 @@ public class CompilationServiceImpl implements CompilationService{
     private Set<Event> getSetOfEvents(Set<Long> event) {
         Set<Event> events = new HashSet<>();
         if (Objects.isNull(event)) return events;
-        for(Long eventId : event) {
+        for (Long eventId : event) {
             System.out.println("Event: " + event);
             events.add(eventRepository.getReferenceById(eventId));
         }
