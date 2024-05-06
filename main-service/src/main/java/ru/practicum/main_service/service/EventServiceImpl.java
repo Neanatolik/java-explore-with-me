@@ -16,7 +16,6 @@ import ru.practicum.main_service.exceptions.BadRequest;
 import ru.practicum.main_service.exceptions.Conflict;
 import ru.practicum.main_service.exceptions.NotFoundException;
 import ru.practicum.main_service.model.Event;
-import ru.practicum.main_service.model.User;
 import ru.practicum.main_service.repository.CategoryRepository;
 import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.main_service.repository.LocationRepository;
@@ -73,7 +72,7 @@ public class EventServiceImpl implements EventService {
     private Event checkUpdateEventAdminRequestAndGetEvent(UpdateEventAdminRequest updateEventAdminRequest, long id) {
         if (Objects.nonNull(updateEventAdminRequest.getEventDate())) {
             if (LocalDateTime.parse(updateEventAdminRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new BadRequest("", "");
+                throw new BadRequest("Дата начала события ранее чем через два часа с текущего момента", "Ошибка обновления данных");
             }
         }
         if (Objects.nonNull(updateEventAdminRequest.getDescription())) {
@@ -81,7 +80,7 @@ public class EventServiceImpl implements EventService {
                 throw new BadRequest("нет Description", "Неверный запрос");
             }
             if (updateEventAdminRequest.getDescription().length() < 20 || updateEventAdminRequest.getDescription().length() > 7000) {
-                throw new BadRequest("", "Неверный запрос");
+                throw new BadRequest("Description должен быть от 20 до 7000", "Неверный запрос");
             }
         }
 
@@ -96,10 +95,10 @@ public class EventServiceImpl implements EventService {
 
         if (Objects.nonNull(updateEventAdminRequest.getTitle())) {
             if (updateEventAdminRequest.getTitle().isBlank()) {
-                throw new BadRequest("", "");
+                throw new BadRequest("Отсуствует Title", "Ошибка запроса");
             }
             if (updateEventAdminRequest.getTitle().length() < 3 || updateEventAdminRequest.getTitle().length() > 120) {
-                throw new BadRequest("", "");
+                throw new BadRequest("title должен быть от 3 до 120", "Ошибка запроса");
             }
         }
 
@@ -110,32 +109,27 @@ public class EventServiceImpl implements EventService {
         }
         Optional<Event> event = eventRepository.findById(id);
         if (event.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("Данный event не найден", "Ошибка запроса");
         }
-        System.out.println("event: " + event.get().getState() + " update: " + updateEventAdminRequest.getStateAction());
-        System.out.println(Objects.nonNull(updateEventAdminRequest.getStateAction()));
         if (Objects.nonNull(updateEventAdminRequest.getStateAction())) {
             switch (updateEventAdminRequest.getStateAction()) {
                 case "PUBLISH_EVENT":
                     if (event.get().getState().equals("PUBLISHED")) {
-                        throw new Conflict("", "");
+                        throw new Conflict("Повторный запрос", "Ошибка запроса");
                     }
                     if (event.get().getState().equals("CANCELED")) {
-                        throw new Conflict("", "");
+                        throw new Conflict("Уже оплубликован", "Ошибка запроса");
                     }
                     break;
                 case "REJECT_EVENT":
                     if (event.get().getState().equals("CANCELED")) {
-                        throw new Conflict("", "");
+                        throw new Conflict("Повторный запрос", "Ошибка запроса");
                     }
                     if (event.get().getState().equals("PUBLISHED")) {
-                        throw new Conflict("", "");
+                        throw new Conflict("Уже отменен", "Ошибка запроса");
                     }
                     break;
             }
-        }
-        if (event.get().getState().equals(updateEventAdminRequest.getStateAction())) {
-            throw new Conflict("", "");
         }
         return event.get();
     }
@@ -159,16 +153,16 @@ public class EventServiceImpl implements EventService {
 
     private void checkUpdateEventUserRequest(UpdateEventUserRequest updateEventUserRequest, String state) {
         if (state.equals("PUBLISHED")) {
-            throw new Conflict("", "");
+            throw new Conflict("Событие уже опубликовано", "Ошибка запроса");
         }
         if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
             if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new BadRequest("", "");
+                throw new BadRequest("event date раньше чем через 2 часа", "Ошибка запроса");
             }
         }
         if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
             if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new BadRequest("", "");
+                throw new BadRequest("start позже чем end", "Ошибка запроса");
             }
         }
         if (Objects.nonNull(updateEventUserRequest.getDescription())) {
@@ -176,7 +170,7 @@ public class EventServiceImpl implements EventService {
                 throw new BadRequest("нет Description", "Неверный запрос");
             }
             if (updateEventUserRequest.getDescription().length() < 20 || updateEventUserRequest.getDescription().length() > 7000) {
-                throw new BadRequest("", "Неверный запрос");
+                throw new BadRequest("Description должен быть от 20 до 7000", "Неверный запрос");
             }
         }
         if (Objects.nonNull(updateEventUserRequest.getAnnotation())) {
@@ -184,15 +178,15 @@ public class EventServiceImpl implements EventService {
                 throw new BadRequest("нет Annotation", "Неверный запрос");
             }
             if (updateEventUserRequest.getAnnotation().length() < 20 || updateEventUserRequest.getAnnotation().length() > 2000) {
-                throw new BadRequest("", "Неверный запрос");
+                throw new BadRequest("Annotation должна быть от 20 до 2000", "Неверный запрос");
             }
         }
         if (Objects.nonNull(updateEventUserRequest.getTitle())) {
             if (updateEventUserRequest.getTitle().isBlank()) {
-                throw new BadRequest("", "");
+                throw new BadRequest("title отсутствует", "Ошибка запроса");
             }
             if (updateEventUserRequest.getTitle().length() < 3 || updateEventUserRequest.getTitle().length() > 120) {
-                throw new BadRequest("", "");
+                throw new BadRequest("title должен быть от 3 до 120", "Ошибка запроса");
             }
         }
     }
@@ -201,7 +195,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventById(long id, long eventId) {
         Optional<Event> event = eventRepository.findById(eventId);
         if (event.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("event не найдено", "Ошибка запроса");
         }
         return EventMapper.toEventFullDto(event.get());
     }
@@ -237,34 +231,26 @@ public class EventServiceImpl implements EventService {
         ResponseEntity<Object> re = statsClient.getHits(List.of(s), start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), true);
         List<ViewStatsDto> list = objectMapper.convertValue(re.getBody(), new TypeReference<>() {
         });
-        System.out.println(list);
         eventRepository.setView(id, list.get(0).getHits());
     }
 
     private Event getEventById(long eventId) {
         Optional<Event> event = eventRepository.findPublishedById(eventId);
         if (event.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("event published не найден", "Ошибка запроса");
         } else return event.get();
-    }
-
-    private User getUserById(long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("", "");
-        } else return user.get();
     }
 
     private void checkDates(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
         if (rangeEnd.isBefore(rangeStart)) {
-            throw new BadRequest("", "");
+            throw new BadRequest("Дата start позже end", "Ошибка запроса");
         }
     }
 
     private void checkCategories(List<Integer> categories) {
         for (Integer category : categories) {
             if (category <= 0) {
-                throw new BadRequest("", "");
+                throw new BadRequest("Отрицательный id", "Ошибка запроса");
             }
         }
     }
@@ -274,21 +260,21 @@ public class EventServiceImpl implements EventService {
             throw new BadRequest("нет Description", "Неверный запрос");
         }
         if (newEventDto.getDescription().length() < 20 || newEventDto.getDescription().length() > 7000) {
-            throw new BadRequest("", "Неверный запрос");
+            throw new BadRequest("Description должен быть от 20 до 7000", "Неверный запрос");
 
         }
         if (Objects.isNull(newEventDto.getAnnotation()) || newEventDto.getAnnotation().isBlank()) {
             throw new BadRequest("нет Annotation", "Неверный запрос");
         }
         if (newEventDto.getAnnotation().length() < 20 || newEventDto.getAnnotation().length() > 2000) {
-            throw new BadRequest("", "Неверный запрос");
+            throw new BadRequest("Annotation должна быть от 20 до 2000", "Неверный запрос");
         }
 
         if (Objects.isNull(newEventDto.getTitle()) || newEventDto.getTitle().isBlank()) {
-            throw new BadRequest("", "");
+            throw new BadRequest("title отсутствует", "Ошибка запроса");
         }
         if (newEventDto.getTitle().length() < 3 || newEventDto.getTitle().length() > 120) {
-            throw new BadRequest("", "");
+            throw new BadRequest("title должен быть от 3 до 120", "Ошибка запроса");
         }
 
         if (Objects.nonNull(newEventDto.getParticipantLimit())) {
@@ -297,11 +283,11 @@ public class EventServiceImpl implements EventService {
             }
         }
         if (Objects.isNull(newEventDto.getEventDate())) {
-            throw new BadRequest("", "");
+            throw new BadRequest("Отсутствует дата", "Ошибка запроса");
         }
 
         if (LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new BadRequest("", "");
+            throw new BadRequest("event date раньше чем через 2 часа", "Ошибка запроса");
         }
 
     }
@@ -345,8 +331,6 @@ public class EventServiceImpl implements EventService {
                 case SEND_TO_REVIEW:
                     event.setState(PENDING.toString());
                     break;
-                default:
-                    throw new BadRequest("", "");
             }
         }
         if (Objects.nonNull(u.getTitle())) {
@@ -394,8 +378,6 @@ public class EventServiceImpl implements EventService {
                 case PUBLISH_EVENT:
                     event.setState(PUBLISHED.toString());
                     break;
-                default:
-                    throw new BadRequest("", "");
             }
         }
         if (Objects.nonNull(u.getTitle())) {

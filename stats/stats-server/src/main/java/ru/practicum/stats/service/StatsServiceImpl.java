@@ -44,10 +44,10 @@ public class StatsServiceImpl implements StatsService {
 
     private void checkDates(LocalDateTime start, LocalDateTime end) {
         if (Objects.isNull(start) || Objects.isNull(end)) {
-            throw new BadRequest("", "");
+            throw new BadRequest("Отсутствуют даты start или end", "Ошибка запроса");
         }
         if (start.isAfter(end)) {
-            throw new BadRequest("", "");
+            throw new BadRequest("start позже чем end", "Ошибка запроса");
         }
     }
 

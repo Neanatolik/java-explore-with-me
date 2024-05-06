@@ -66,7 +66,6 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void checkParticipationLimit(int participantLimit, int requests) {
-        System.out.println("participantLimit: " + participantLimit + " requests: " + requests);
         if (participantLimit != 0) {
             if (requests == participantLimit) {
                 throw new Conflict("", "Ошибка создания request");
@@ -96,7 +95,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancelRequest(long id, long requestId) {
         Optional<Request> request = requestRepository.findById(requestId);
         if (request.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("Данный request не найден", "Ошибка запроса");
         }
         request.get().setStatus(State.CANCELED.toString());
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request.get()));
@@ -110,7 +109,7 @@ public class RequestServiceImpl implements RequestService {
         for (Long requestId : eventRequestStatusUpdateRequest.getRequestIds()) {
             Request request = getRequestByIdFromDb(requestId);
             if (request.getStatus().equals("CONFIRMED") && eventRequestStatusUpdateRequest.getStatus().equals("REJECTED")) {
-                throw new Conflict("", "");
+                throw new Conflict("Попытка отменить подтвержденный request", "Ошибка запроса");
             }
             request.setStatus(eventRequestStatusUpdateRequest.getStatus());
             listOfRequests.add(RequestMapper.toParticipationRequestDto(request));
@@ -120,7 +119,7 @@ public class RequestServiceImpl implements RequestService {
         switch (StateState.valueOf(eventRequestStatusUpdateRequest.getStatus())) {
             case CONFIRMED:
                 if ((event.getConfirmedRequests() + size) > event.getParticipantLimit()) {
-                    throw new Conflict("", "");
+                    throw new Conflict("Превышен ParticipantLimit", "Ошибка подтверждения запросов");
                 }
                 e.setConfirmedRequests(listOfRequests);
                 break;
@@ -136,30 +135,21 @@ public class RequestServiceImpl implements RequestService {
     private Request getRequestByIdFromDb(Long requestId) {
         Optional<Request> request = requestRepository.findById(requestId);
         if (request.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("request не найден", "Ошибка запроса");
         } else return request.get();
     }
 
     private Event getEventById(long eventId) {
         Optional<Event> event = eventRepository.findById(eventId);
         if (event.isEmpty()) {
-            throw new NotFoundException("", "");
-        } else return event.get();
-    }
-
-    private Event getPublishedEventById(long eventId) {
-        Optional<Event> event = eventRepository.findPublishedById(eventId);
-        if (event.isEmpty()) {
-            System.out.println("Здесь event");
-            throw new NotFoundException("", "");
+            throw new NotFoundException("event не найден", "Ошибка запроса");
         } else return event.get();
     }
 
     private User getUserById(long userId) {
-        System.out.println("Здесь user");
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("user не найден", "Ошибка запроса");
         } else return user.get();
     }
 }

@@ -33,7 +33,6 @@ public class StatsClient extends BaseClient {
         if (Objects.nonNull(uris)) {
             path.append("&uris=").append(String.join("&uris=", uris));
         }
-        System.out.println("path: " + path);
         return get(path.toString(), parameters);
     }
 

@@ -92,7 +92,6 @@ public class EventMapper {
     public static Set<EventShortDto> mapToEventShortDtoSet(Set<Event> events) {
         Set<EventShortDto> dtoList = new HashSet<>();
         for (Event event : events) {
-            System.out.println("Event: " + event);
             dtoList.add(toEventShortDto(event));
         }
         return dtoList;

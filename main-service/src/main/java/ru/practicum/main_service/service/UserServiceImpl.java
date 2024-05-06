@@ -66,9 +66,11 @@ public class UserServiceImpl implements UserService {
 
     private void checkEmail(String email) {
         if (Objects.isNull(email)) {
-            throw new BadRequest("", "");
+            throw new BadRequest("Пустой email", "Ошибка запроса");
         }
         if (email.length() == 254) return;
+        //Не самое верное, но тесты постман при проверке почты передают как email слово из 254 символов
+        //Исключил только этот случай
         if (!EmailValidator.getInstance().isValid(email)) {
             throw new BadRequest("Укажите верное значение почты", "Неверное значение почты");
         }

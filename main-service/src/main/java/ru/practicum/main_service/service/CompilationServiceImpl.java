@@ -43,26 +43,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto changeCompilation(UpdateCompilationRequest updateCompilationRequest, long id) {
-        System.out.println("updateCompilationRequest: " + updateCompilationRequest);
         return CompilationMapper.toCompilationDto(compilationRepository.save(updateCompilation(compilationRepository.getReferenceById(id), updateCompilationRequest)));
-    }
-
-    private Compilation updateCompilation(Compilation compilation, UpdateCompilationRequest updateCompilationRequest) {
-        if (Objects.nonNull(updateCompilationRequest.getTitle())) {
-            if (updateCompilationRequest.getTitle().length() > 50 || updateCompilationRequest.getTitle().isBlank()) {
-                throw new BadRequest("", "");
-            }
-            compilation.setTitle(updateCompilationRequest.getTitle());
-        }
-        if (Objects.nonNull(updateCompilationRequest.getPinned())) {
-            compilation.setPinned(updateCompilationRequest.getPinned());
-        }
-        if (Objects.nonNull(updateCompilationRequest.getEvents())) {
-            compilation.setEvent(getSetOfEvents(updateCompilationRequest.getEvents()));
-        }
-        System.out.println(compilation);
-        System.out.println(updateCompilationRequest.getEvents());
-        return compilation;
     }
 
     @Override
@@ -75,16 +56,31 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto getCompilationById(long id) {
         Optional<Compilation> compilation = compilationRepository.findById(id);
         if (compilation.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("Данный compilation не найден", "Ошибка запроса");
         }
         return CompilationMapper.toCompilationDto(compilation.get());
+    }
+
+    private Compilation updateCompilation(Compilation compilation, UpdateCompilationRequest updateCompilationRequest) {
+        if (Objects.nonNull(updateCompilationRequest.getTitle())) {
+            if (updateCompilationRequest.getTitle().length() > 50 || updateCompilationRequest.getTitle().isBlank()) {
+                throw new BadRequest("title должен быть от 1 до 50 символов", "Ошибка обновления данных");
+            }
+            compilation.setTitle(updateCompilationRequest.getTitle());
+        }
+        if (Objects.nonNull(updateCompilationRequest.getPinned())) {
+            compilation.setPinned(updateCompilationRequest.getPinned());
+        }
+        if (Objects.nonNull(updateCompilationRequest.getEvents())) {
+            compilation.setEvent(getSetOfEvents(updateCompilationRequest.getEvents()));
+        }
+        return compilation;
     }
 
     private Set<Event> getSetOfEvents(Set<Long> event) {
         Set<Event> events = new HashSet<>();
         if (Objects.isNull(event)) return events;
         for (Long eventId : event) {
-            System.out.println("Event: " + event);
             events.add(eventRepository.getReferenceById(eventId));
         }
         return events;
@@ -92,10 +88,10 @@ public class CompilationServiceImpl implements CompilationService {
 
     private void checkNewCompilationDto(NewCompilationDto newCompilationDto) {
         if (Objects.isNull(newCompilationDto.getTitle()) || newCompilationDto.getTitle().isBlank()) {
-            throw new BadRequest("", "");
+            throw new BadRequest("отсуствует title", "Ошибка запроса");
         }
         if (newCompilationDto.getTitle().length() > 50) {
-            throw new BadRequest("", "");
+            throw new BadRequest("title должен быть не более 50", "Ошибка запроса");
         }
     }
 }

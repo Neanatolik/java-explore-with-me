@@ -38,28 +38,10 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.fromNewCategoryDto(newCategoryDto)));
     }
 
-    private void checkCategory(NewCategoryDto newCategoryDto) {
-        if (Objects.isNull(newCategoryDto.getName()) || newCategoryDto.getName().isBlank()) {
-            throw new BadRequest("", "");
-        }
-        if (newCategoryDto.getName().length() > 50) {
-            throw new BadRequest("","");
-        }
-        if (categoryRepository.existName(newCategoryDto.getName())) {
-            throw new Conflict("", "");
-        }
-    }
-
     @Override
     public void deleteCategory(long id) {
         checkRelatedEvent(id);
         categoryRepository.deleteById(id);
-    }
-
-    private void checkRelatedEvent(long id) {
-        if (eventRepository.existsCategory(id)) {
-            throw new Conflict("", "");
-        }
     }
 
     @Override
@@ -68,18 +50,6 @@ public class CategoryServiceImpl implements CategoryService {
         checkCategoryDto(categoryDto, oldCategory.getName());
         oldCategory.setName(categoryDto.getName());
         return CategoryMapper.toCategoryDto(categoryRepository.save(oldCategory));
-    }
-
-    private void checkCategoryDto(CategoryDto categoryDto, String name) {
-        if (Objects.isNull(categoryDto) || categoryDto.getName().isBlank()) {
-            throw new BadRequest("", "");
-        }
-        if (categoryDto.getName().length() > 50) {
-            throw new BadRequest("","");
-        }
-        if (categoryRepository.existName(categoryDto.getName()) && !categoryDto.getName().equals(name)) {
-            throw new Conflict("", "");
-        }
     }
 
     @Override
@@ -96,9 +66,39 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryDto getCategoryById(long id) {
         Optional<Category> category = categoryRepository.findById(id);
         if (category.isEmpty()) {
-            throw new NotFoundException("", "");
+            throw new NotFoundException("category не найдена", "Ошибка запроса");
         }
         return CategoryMapper.toCategoryDto(category.get());
+    }
+
+    private void checkCategoryDto(CategoryDto categoryDto, String name) {
+        if (Objects.isNull(categoryDto) || categoryDto.getName().isBlank()) {
+            throw new BadRequest("У category отсутствует name", "Ошибка запроса");
+        }
+        if (categoryDto.getName().length() > 50) {
+            throw new BadRequest("name должен быть меньше 50 символов", "Ошибка запроса");
+        }
+        if (categoryRepository.existName(categoryDto.getName()) && !categoryDto.getName().equals(name)) {
+            throw new Conflict("Данное name же существует", "Ошибка запроса");
+        }
+    }
+
+    private void checkRelatedEvent(long id) {
+        if (eventRepository.existsCategory(id)) {
+            throw new Conflict("Данная category используется", "Ошибка удаления");
+        }
+    }
+
+    private void checkCategory(NewCategoryDto newCategoryDto) {
+        if (Objects.isNull(newCategoryDto.getName()) || newCategoryDto.getName().isBlank()) {
+            throw new BadRequest("Отсутствует name", "Ошибка получения данных");
+        }
+        if (newCategoryDto.getName().length() > 50) {
+            throw new BadRequest("name должен быть менее 50 символов", "Ошибка получения данных");
+        }
+        if (categoryRepository.existName(newCategoryDto.getName())) {
+            throw new Conflict("Данное имя категории уже существует", "Ошибка получения данных");
+        }
     }
 
 }
