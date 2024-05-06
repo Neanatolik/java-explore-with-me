@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.ViewStatsDto;
-import ru.practicum.stats.StatsClient;
 import ru.practicum.main_service.dto.*;
 import ru.practicum.main_service.dto.mapper.EventMapper;
 import ru.practicum.main_service.enums.StateActionAdmin;
@@ -22,6 +21,7 @@ import ru.practicum.main_service.repository.CategoryRepository;
 import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.main_service.repository.LocationRepository;
 import ru.practicum.main_service.repository.UserRepository;
+import ru.practicum.stats.StatsClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

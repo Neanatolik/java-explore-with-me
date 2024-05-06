@@ -3,7 +3,6 @@ package ru.practicum.main_service.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.main_service.model.Category;
 import ru.practicum.main_service.model.Location;
 

@@ -2,7 +2,6 @@ package ru.practicum.main_service.dto.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.main_service.dto.ParticipationRequestDto;
-import ru.practicum.main_service.dto.UserDto;
 import ru.practicum.main_service.enums.State;
 import ru.practicum.main_service.enums.StateState;
 import ru.practicum.main_service.model.Event;

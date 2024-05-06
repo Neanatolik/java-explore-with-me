@@ -1,7 +1,6 @@
 package ru.practicum.main_service.dto.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.main_service.dto.EventFullDto;
 import ru.practicum.main_service.dto.EventShortDto;
 import ru.practicum.main_service.dto.NewEventDto;

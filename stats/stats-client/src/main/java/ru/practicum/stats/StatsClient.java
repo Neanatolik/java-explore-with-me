@@ -31,15 +31,15 @@ public class StatsClient extends BaseClient {
     public ResponseEntity<Object> getHits(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
         Map<String, Object> parameters = new java.util.HashMap<>(Map.of("unique", unique));
         StringBuilder path = new StringBuilder("?unique={unique}");
-        if(Objects.nonNull(start)) {
+        if (Objects.nonNull(start)) {
             parameters.put("start", start);
             path.append("&start=");
         }
-        if(Objects.nonNull(end)) {
+        if (Objects.nonNull(end)) {
             parameters.put("end", end);
             path.append("&end=");
         }
-        if(Objects.nonNull(uris)) {
+        if (Objects.nonNull(uris)) {
             path.append("&uris=").append(String.join("&uris=", uris));
         }
         return get(path.toString(), parameters);
