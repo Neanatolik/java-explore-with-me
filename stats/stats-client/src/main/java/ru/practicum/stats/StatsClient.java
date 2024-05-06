@@ -39,7 +39,7 @@ public class StatsClient extends BaseClient {
             parameters.put("end", end);
             path.append("&end=");
         }
-        if (Objects.nonNull(uris)) {
+        if(Objects.nonNull(uris)) {
             path.append("&uris=").append(String.join("&uris=", uris));
         }
         return get(path.toString(), parameters);
