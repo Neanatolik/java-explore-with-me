@@ -212,7 +212,7 @@ public class EventServiceImpl implements EventService {
         if (Objects.nonNull(categories)) {
             checkCategories(categories);
         }
-        if (Objects.nonNull(rangeStart) & Objects.nonNull(rangeEnd)) {
+        if (Objects.nonNull(rangeStart) && Objects.nonNull(rangeEnd)) {
             checkDates(rangeStart, rangeEnd);
         }
         return EventMapper.mapToEventShortDto(eventRepository.getByEventsByParameters(text, categories, paid, rangeStart, rangeEnd, page));

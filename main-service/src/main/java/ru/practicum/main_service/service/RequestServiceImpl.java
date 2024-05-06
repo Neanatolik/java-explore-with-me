@@ -109,7 +109,7 @@ public class RequestServiceImpl implements RequestService {
         List<ParticipationRequestDto> listOfRequests = new ArrayList<>();
         for (Long requestId : eventRequestStatusUpdateRequest.getRequestIds()) {
             Request request = getRequestByIdFromDb(requestId);
-            if (request.getStatus().equals("CONFIRMED") & eventRequestStatusUpdateRequest.getStatus().equals("REJECTED")) {
+            if (request.getStatus().equals("CONFIRMED") && eventRequestStatusUpdateRequest.getStatus().equals("REJECTED")) {
                 throw new Conflict("", "");
             }
             request.setStatus(eventRequestStatusUpdateRequest.getStatus());

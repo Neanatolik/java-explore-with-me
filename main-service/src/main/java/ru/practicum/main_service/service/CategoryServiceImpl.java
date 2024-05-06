@@ -77,8 +77,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryDto.getName().length() > 50) {
             throw new BadRequest("","");
         }
-
-        if (categoryRepository.existName(categoryDto.getName()) & !categoryDto.getName().equals(name)) {
+        if (categoryRepository.existName(categoryDto.getName()) && !categoryDto.getName().equals(name)) {
             throw new Conflict("", "");
         }
     }
