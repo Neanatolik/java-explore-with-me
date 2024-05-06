@@ -57,7 +57,7 @@ public class RequestServiceImpl implements RequestService {
         checkEventState(event.getState());
         checkParticipationLimit(event.getParticipantLimit(), requestRepository.getConfirmedRequestForEvent(eventId));
         Request request = RequestMapper.newRequest(event, user);
-        if(!event.getRequestModeration()) {
+        if (!event.getRequestModeration()) {
             request.setStatus("CONFIRMED");
         }
         Request requestFromDb = requestRepository.save(request);
@@ -67,27 +67,27 @@ public class RequestServiceImpl implements RequestService {
 
     private void checkParticipationLimit(int participantLimit, int requests) {
         System.out.println("participantLimit: " + participantLimit + " requests: " + requests);
-        if(participantLimit!=0) {
-            if(requests == participantLimit) {
+        if (participantLimit!=0) {
+            if (requests == participantLimit) {
                 throw new Conflict("", "Ошибка создания request");
             }
         }
     }
 
     private void checkEventState(String state) {
-        if(state.equals("PENDING")) {
+        if (state.equals("PENDING")) {
             throw new Conflict("Event ещё не опубликован", "Ошибка создания request");
         }
     }
 
     private void checkRequester(long id, long eventId) {
-        if(eventRepository.checkRequesterForRequest(eventId, id)) {
+        if (eventRepository.checkRequesterForRequest(eventId, id)) {
             throw new Conflict("Запрос владельцом пользователя события", "Ошибка создания request");
         }
     }
 
     private void checkExistingRequest(long userId, long eventId) {
-        if(requestRepository.existsRequest(userId, eventId)) {
+        if (requestRepository.existsRequest(userId, eventId)) {
             throw new Conflict("У данного пользователя уже есть запрос к данному событию", "Ошибка создания request");
         }
     }
@@ -95,7 +95,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto cancelRequest(long id, long requestId) {
         Optional<Request> request = requestRepository.findById(requestId);
-        if(request.isEmpty()) {
+        if (request.isEmpty()) {
             throw new NotFoundException("", "");
         }
         request.get().setStatus(State.CANCELED.toString());
@@ -109,7 +109,7 @@ public class RequestServiceImpl implements RequestService {
         List<ParticipationRequestDto> listOfRequests = new ArrayList<>();
         for (Long requestId : eventRequestStatusUpdateRequest.getRequestIds()) {
             Request request = getRequestByIdFromDb(requestId);
-            if(request.getStatus().equals("CONFIRMED") & eventRequestStatusUpdateRequest.getStatus().equals("REJECTED")) {
+            if (request.getStatus().equals("CONFIRMED") & eventRequestStatusUpdateRequest.getStatus().equals("REJECTED")) {
                 throw new Conflict("", "");
             }
             request.setStatus(eventRequestStatusUpdateRequest.getStatus());
@@ -119,7 +119,7 @@ public class RequestServiceImpl implements RequestService {
         int size = listOfRequests.size();
         switch (StateState.valueOf(eventRequestStatusUpdateRequest.getStatus())) {
             case CONFIRMED:
-                if((event.getConfirmedRequests() + size) > event.getParticipantLimit()) {
+                if ((event.getConfirmedRequests() + size) > event.getParticipantLimit()) {
                     throw new Conflict("", "");
                 }
                 e.setConfirmedRequests(listOfRequests);

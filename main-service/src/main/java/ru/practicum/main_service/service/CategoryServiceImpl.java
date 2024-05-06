@@ -39,13 +39,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void checkCategory(NewCategoryDto newCategoryDto) {
-        if(Objects.isNull(newCategoryDto.getName()) || newCategoryDto.getName().isBlank()) {
+        if (Objects.isNull(newCategoryDto.getName()) || newCategoryDto.getName().isBlank()) {
             throw new BadRequest("", "");
         }
-        if(newCategoryDto.getName().length() > 50){
+        if (newCategoryDto.getName().length() > 50){
             throw new BadRequest("","");
         }
-        if(categoryRepository.existName(newCategoryDto.getName())) {
+        if (categoryRepository.existName(newCategoryDto.getName())) {
             throw new Conflict("", "");
         }
     }
@@ -57,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void checkRelatedEvent(long id) {
-        if(eventRepository.existsCategory(id)) {
+        if (eventRepository.existsCategory(id)) {
             throw new Conflict("", "");
         }
     }
@@ -71,14 +71,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void checkCategoryDto(CategoryDto categoryDto, String name) {
-        if(Objects.isNull(categoryDto)||categoryDto.getName().isBlank()) {
+        if (Objects.isNull(categoryDto)||categoryDto.getName().isBlank()) {
             throw new BadRequest("", "");
         }
-        if(categoryDto.getName().length() > 50){
+        if (categoryDto.getName().length() > 50){
             throw new BadRequest("","");
         }
 
-        if(categoryRepository.existName(categoryDto.getName()) & !categoryDto.getName().equals(name)) {
+        if (categoryRepository.existName(categoryDto.getName()) & !categoryDto.getName().equals(name)) {
             throw new Conflict("", "");
         }
     }
@@ -96,7 +96,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryDto getCategoryById(long id) {
         Optional<Category> category = categoryRepository.findById(id);
-        if(category.isEmpty()) {
+        if (category.isEmpty()) {
             throw new NotFoundException("", "");
         }
         return CategoryMapper.toCategoryDto(category.get());

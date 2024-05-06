@@ -48,16 +48,16 @@ public class CompilationServiceImpl implements CompilationService{
     }
 
     private Compilation updateCompilation(Compilation compilation, UpdateCompilationRequest updateCompilationRequest) {
-        if(Objects.nonNull(updateCompilationRequest.getTitle())) {
-            if(updateCompilationRequest.getTitle().length() > 50 || updateCompilationRequest.getTitle().isBlank()) {
+        if (Objects.nonNull(updateCompilationRequest.getTitle())) {
+            if (updateCompilationRequest.getTitle().length() > 50 || updateCompilationRequest.getTitle().isBlank()) {
                 throw new BadRequest("", "");
             }
             compilation.setTitle(updateCompilationRequest.getTitle());
         }
-        if(Objects.nonNull(updateCompilationRequest.getPinned())) {
+        if (Objects.nonNull(updateCompilationRequest.getPinned())) {
             compilation.setPinned(updateCompilationRequest.getPinned());
         }
-        if(Objects.nonNull(updateCompilationRequest.getEvents())) {
+        if (Objects.nonNull(updateCompilationRequest.getEvents())) {
             compilation.setEvent(getSetOfEvents(updateCompilationRequest.getEvents()));
         }
         System.out.println(compilation);
@@ -74,7 +74,7 @@ public class CompilationServiceImpl implements CompilationService{
     @Override
     public CompilationDto getCompilationById(long id) {
         Optional<Compilation> compilation = compilationRepository.findById(id);
-        if(compilation.isEmpty()) {
+        if (compilation.isEmpty()) {
             throw new NotFoundException("", "");
         }
         return CompilationMapper.toCompilationDto(compilation.get());
@@ -82,7 +82,7 @@ public class CompilationServiceImpl implements CompilationService{
 
     private Set<Event> getSetOfEvents(Set<Long> event) {
         Set<Event> events = new HashSet<>();
-        if(Objects.isNull(event)) return events;
+        if (Objects.isNull(event)) return events;
         for(Long eventId : event) {
             System.out.println("Event: " + event);
             events.add(eventRepository.getReferenceById(eventId));
@@ -91,10 +91,10 @@ public class CompilationServiceImpl implements CompilationService{
     }
 
     private void checkNewCompilationDto(NewCompilationDto newCompilationDto) {
-        if(Objects.isNull(newCompilationDto.getTitle()) || newCompilationDto.getTitle().isBlank()) {
+        if (Objects.isNull(newCompilationDto.getTitle()) || newCompilationDto.getTitle().isBlank()) {
             throw new BadRequest("", "");
         }
-        if(newCompilationDto.getTitle().length()>50) {
+        if (newCompilationDto.getTitle().length()>50) {
             throw new BadRequest("", "");
         }
     }

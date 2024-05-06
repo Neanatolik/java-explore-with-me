@@ -1464,12 +1464,12 @@ function formatXML(data) {
 $(".prettyPrint").each(function () {
         var data = $(this).text();
         // Verify whether data is JSON
-        if(isJSON(data))
+        if (isJSON(data))
         {
                 obj = JSON.parse(data);
                 data = JSON.stringify(obj, null, 2);
         }
-        else if(isXML(data)) {
+        else if (isXML(data)) {
             data = formatXML(data);
         }
         $(this).text(data);

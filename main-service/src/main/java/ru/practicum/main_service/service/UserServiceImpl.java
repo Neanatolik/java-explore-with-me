@@ -56,19 +56,19 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(newUserRequest.getName()) || newUserRequest.getName().isBlank()) {
             throw new BadRequest("Укажите имя", "Пустое значение имени");
         }
-        if(newUserRequest.getName().length() < 2) {
+        if (newUserRequest.getName().length() < 2) {
             throw new BadRequest("Длина имени должна быть 2 и более символа", "Неверное значение имени");
         }
-        if(newUserRequest.getName().length() > 250) {
+        if (newUserRequest.getName().length() > 250) {
             throw new BadRequest("Длина имени должна быть меньше 250 символов", "Неверное значение имени");
         }
     }
 
     private void checkEmail(String email) {
-        if(Objects.isNull(email)) {
+        if (Objects.isNull(email)) {
             throw new BadRequest("", "");
         }
-        if(email.length()==254) return;
+        if (email.length()==254) return;
         if (!EmailValidator.getInstance().isValid(email)) {
             throw new BadRequest("Укажите верное значение почты", "Неверное значение почты");
         }
