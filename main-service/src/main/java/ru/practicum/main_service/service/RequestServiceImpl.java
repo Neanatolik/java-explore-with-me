@@ -65,32 +65,6 @@ public class RequestServiceImpl implements RequestService {
         return RequestMapper.toParticipationRequestDto(requestFromDb);
     }
 
-    private void checkParticipationLimit(int participantLimit, int requests) {
-        if (participantLimit != 0) {
-            if (requests == participantLimit) {
-                throw new Conflict("", "Ошибка создания request");
-            }
-        }
-    }
-
-    private void checkEventState(String state) {
-        if (state.equals("PENDING")) {
-            throw new Conflict("Event ещё не опубликован", "Ошибка создания request");
-        }
-    }
-
-    private void checkRequester(long id, long eventId) {
-        if (eventRepository.checkRequesterForRequest(eventId, id)) {
-            throw new Conflict("Запрос владельцом пользователя события", "Ошибка создания request");
-        }
-    }
-
-    private void checkExistingRequest(long userId, long eventId) {
-        if (requestRepository.existsRequest(userId, eventId)) {
-            throw new Conflict("У данного пользователя уже есть запрос к данному событию", "Ошибка создания request");
-        }
-    }
-
     @Override
     public ParticipationRequestDto cancelRequest(long id, long requestId) {
         Optional<Request> request = requestRepository.findById(requestId);
@@ -130,6 +104,32 @@ public class RequestServiceImpl implements RequestService {
         }
         eventRepository.incrementConfirmedRequests(eventId, size);
         return e;
+    }
+
+    private void checkParticipationLimit(int participantLimit, int requests) {
+        if (participantLimit != 0) {
+            if (requests == participantLimit) {
+                throw new Conflict("", "Ошибка создания request");
+            }
+        }
+    }
+
+    private void checkEventState(String state) {
+        if (state.equals("PENDING")) {
+            throw new Conflict("Event ещё не опубликован", "Ошибка создания request");
+        }
+    }
+
+    private void checkRequester(long id, long eventId) {
+        if (eventRepository.checkRequesterForRequest(eventId, id)) {
+            throw new Conflict("Запрос владельцом пользователя события", "Ошибка создания request");
+        }
+    }
+
+    private void checkExistingRequest(long userId, long eventId) {
+        if (requestRepository.existsRequest(userId, eventId)) {
+            throw new Conflict("У данного пользователя уже есть запрос к данному событию", "Ошибка создания request");
+        }
     }
 
     private Request getRequestByIdFromDb(Long requestId) {

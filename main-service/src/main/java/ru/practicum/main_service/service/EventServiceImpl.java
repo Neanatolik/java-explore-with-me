@@ -69,6 +69,113 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDto(eventRepository.save(updateEventDataAdmin(updateEventAdminRequest, event)));
     }
 
+    @Override
+    public EventFullDto saveEvent(long id, NewEventDto newEventDto) {
+        locationRepository.save(newEventDto.getLocation());
+        checkNewEventDto(newEventDto);
+        return EventMapper.toEventFullDto(eventRepository.save(EventMapper.fromNewEventDto(newEventDto, categoryRepository.getReferenceById(newEventDto.getCategory()), userRepository.getReferenceById(id))));
+    }
+
+    @Override
+    public EventFullDto changeEventById(long id, long eventId, UpdateEventUserRequest updateEventUserRequest) {
+        Event event = eventRepository.getReferenceById(eventId);
+        checkUpdateEventUserRequest(updateEventUserRequest, event.getState());
+        if (Objects.nonNull(updateEventUserRequest.getLocation())) {
+            locationRepository.save(updateEventUserRequest.getLocation());
+        }
+        return EventMapper.toEventFullDto(eventRepository.save(updateEventDataAdmin(updateEventUserRequest, event)));
+    }
+
+    @Override
+    public EventFullDto getEventById(long id, long eventId) {
+        Optional<Event> event = eventRepository.findById(eventId);
+        if (event.isEmpty()) {
+            throw new NotFoundException("event не найдено", "Ошибка запроса");
+        }
+        return EventMapper.toEventFullDto(event.get());
+    }
+
+    @Override
+    public List<EventShortDto> getEventsByParameters(String text, List<Integer> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, boolean onlyAvailable, String sort, int from, int size) {
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        if (Objects.nonNull(categories)) {
+            checkCategories(categories);
+        }
+        if (Objects.nonNull(rangeStart) && Objects.nonNull(rangeEnd)) {
+            checkDates(rangeStart, rangeEnd);
+        }
+        return EventMapper.mapToEventShortDto(eventRepository.getByEventsByParameters(text, Objects.nonNull(categories) ? categories : Collections.emptyList(), paid, rangeStart, rangeEnd, page));
+    }
+
+    @Override
+    public List<EventShortDto> getEventsByUserId(long id, int from, int size) {
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        return EventMapper.mapToEventShortDto(eventRepository.getByUserId(id, page));
+    }
+
+    @Override
+    public EventFullDto getEventByIdPublic(long id) {
+        setView(id, LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1));
+        return EventMapper.toEventFullDto(getEventById(id));
+    }
+
+    @Transactional
+    private void setView(long id, LocalDateTime start, LocalDateTime end) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s = "/events/" + id;
+        ResponseEntity<Object> re = statsClient.getHits(List.of(s), start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), true);
+        List<ViewStatsDto> list = objectMapper.convertValue(re.getBody(), new TypeReference<>() {
+        });
+        eventRepository.setView(id, list.get(0).getHits());
+    }
+
+    private void checkUpdateEventUserRequest(UpdateEventUserRequest updateEventUserRequest, String state) {
+        if (state.equals("PUBLISHED")) {
+            throw new Conflict("Событие уже опубликовано", "Ошибка запроса");
+        }
+        if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
+            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
+                throw new BadRequest("event date раньше чем через 2 часа", "Ошибка запроса");
+            }
+        }
+        if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
+            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
+                throw new BadRequest("start позже чем end", "Ошибка запроса");
+            }
+        }
+        if (Objects.nonNull(updateEventUserRequest.getDescription())) {
+            if (updateEventUserRequest.getDescription().isBlank()) {
+                throw new BadRequest("нет Description", "Неверный запрос");
+            }
+            if (updateEventUserRequest.getDescription().length() < 20 || updateEventUserRequest.getDescription().length() > 7000) {
+                throw new BadRequest("Description должен быть от 20 до 7000", "Неверный запрос");
+            }
+        }
+        if (Objects.nonNull(updateEventUserRequest.getAnnotation())) {
+            if (updateEventUserRequest.getAnnotation().isBlank()) {
+                throw new BadRequest("нет Annotation", "Неверный запрос");
+            }
+            if (updateEventUserRequest.getAnnotation().length() < 20 || updateEventUserRequest.getAnnotation().length() > 2000) {
+                throw new BadRequest("Annotation должна быть от 20 до 2000", "Неверный запрос");
+            }
+        }
+        if (Objects.nonNull(updateEventUserRequest.getTitle())) {
+            if (updateEventUserRequest.getTitle().isBlank()) {
+                throw new BadRequest("title отсутствует", "Ошибка запроса");
+            }
+            if (updateEventUserRequest.getTitle().length() < 3 || updateEventUserRequest.getTitle().length() > 120) {
+                throw new BadRequest("title должен быть от 3 до 120", "Ошибка запроса");
+            }
+        }
+    }
+
+    private Event getEventById(long eventId) {
+        Optional<Event> event = eventRepository.findPublishedById(eventId);
+        if (event.isEmpty()) {
+            throw new NotFoundException("event published не найден", "Ошибка запроса");
+        } else return event.get();
+    }
+
     private Event checkUpdateEventAdminRequestAndGetEvent(UpdateEventAdminRequest updateEventAdminRequest, long id) {
         if (Objects.nonNull(updateEventAdminRequest.getEventDate())) {
             if (LocalDateTime.parse(updateEventAdminRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
@@ -132,113 +239,6 @@ public class EventServiceImpl implements EventService {
             }
         }
         return event.get();
-    }
-
-    @Override
-    public EventFullDto saveEvent(long id, NewEventDto newEventDto) {
-        locationRepository.save(newEventDto.getLocation());
-        checkNewEventDto(newEventDto);
-        return EventMapper.toEventFullDto(eventRepository.save(EventMapper.fromNewEventDto(newEventDto, categoryRepository.getReferenceById(newEventDto.getCategory()), userRepository.getReferenceById(id))));
-    }
-
-    @Override
-    public EventFullDto changeEventById(long id, long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event event = eventRepository.getReferenceById(eventId);
-        checkUpdateEventUserRequest(updateEventUserRequest, event.getState());
-        if (Objects.nonNull(updateEventUserRequest.getLocation())) {
-            locationRepository.save(updateEventUserRequest.getLocation());
-        }
-        return EventMapper.toEventFullDto(eventRepository.save(updateEventDataAdmin(updateEventUserRequest, event)));
-    }
-
-    private void checkUpdateEventUserRequest(UpdateEventUserRequest updateEventUserRequest, String state) {
-        if (state.equals("PUBLISHED")) {
-            throw new Conflict("Событие уже опубликовано", "Ошибка запроса");
-        }
-        if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
-            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new BadRequest("event date раньше чем через 2 часа", "Ошибка запроса");
-            }
-        }
-        if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
-            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new BadRequest("start позже чем end", "Ошибка запроса");
-            }
-        }
-        if (Objects.nonNull(updateEventUserRequest.getDescription())) {
-            if (updateEventUserRequest.getDescription().isBlank()) {
-                throw new BadRequest("нет Description", "Неверный запрос");
-            }
-            if (updateEventUserRequest.getDescription().length() < 20 || updateEventUserRequest.getDescription().length() > 7000) {
-                throw new BadRequest("Description должен быть от 20 до 7000", "Неверный запрос");
-            }
-        }
-        if (Objects.nonNull(updateEventUserRequest.getAnnotation())) {
-            if (updateEventUserRequest.getAnnotation().isBlank()) {
-                throw new BadRequest("нет Annotation", "Неверный запрос");
-            }
-            if (updateEventUserRequest.getAnnotation().length() < 20 || updateEventUserRequest.getAnnotation().length() > 2000) {
-                throw new BadRequest("Annotation должна быть от 20 до 2000", "Неверный запрос");
-            }
-        }
-        if (Objects.nonNull(updateEventUserRequest.getTitle())) {
-            if (updateEventUserRequest.getTitle().isBlank()) {
-                throw new BadRequest("title отсутствует", "Ошибка запроса");
-            }
-            if (updateEventUserRequest.getTitle().length() < 3 || updateEventUserRequest.getTitle().length() > 120) {
-                throw new BadRequest("title должен быть от 3 до 120", "Ошибка запроса");
-            }
-        }
-    }
-
-    @Override
-    public EventFullDto getEventById(long id, long eventId) {
-        Optional<Event> event = eventRepository.findById(eventId);
-        if (event.isEmpty()) {
-            throw new NotFoundException("event не найдено", "Ошибка запроса");
-        }
-        return EventMapper.toEventFullDto(event.get());
-    }
-
-    @Override
-    public List<EventShortDto> getEventsByParameters(String text, List<Integer> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, boolean onlyAvailable, String sort, int from, int size) {
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        if (Objects.nonNull(categories)) {
-            checkCategories(categories);
-        }
-        if (Objects.nonNull(rangeStart) && Objects.nonNull(rangeEnd)) {
-            checkDates(rangeStart, rangeEnd);
-        }
-        return EventMapper.mapToEventShortDto(eventRepository.getByEventsByParameters(text, Objects.nonNull(categories) ? categories : Collections.emptyList(), paid, rangeStart, rangeEnd, page));
-    }
-
-    @Override
-    public List<EventShortDto> getEventsByUserId(long id, int from, int size) {
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        return EventMapper.mapToEventShortDto(eventRepository.getByUserId(id, page));
-    }
-
-    @Override
-    public EventFullDto getEventByIdPublic(long id) {
-        setView(id, LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1));
-        return EventMapper.toEventFullDto(getEventById(id));
-    }
-
-    @Transactional
-    private void setView(long id, LocalDateTime start, LocalDateTime end) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String s = "/events/" + id;
-        ResponseEntity<Object> re = statsClient.getHits(List.of(s), start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), true);
-        List<ViewStatsDto> list = objectMapper.convertValue(re.getBody(), new TypeReference<>() {
-        });
-        eventRepository.setView(id, list.get(0).getHits());
-    }
-
-    private Event getEventById(long eventId) {
-        Optional<Event> event = eventRepository.findPublishedById(eventId);
-        if (event.isEmpty()) {
-            throw new NotFoundException("event published не найден", "Ошибка запроса");
-        } else return event.get();
     }
 
     private void checkDates(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
