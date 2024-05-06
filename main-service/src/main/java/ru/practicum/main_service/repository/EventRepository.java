@@ -19,8 +19,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query(value = "select *\n" +
             "from events e \n" +
-            "where (lower(e.annotation) like lower(concat('%',:text,'%')) or lower(e.description) like lower(concat('%',:text,'%')))\n" +
-            "and (coalesce(:categories) is null or e.category_id in(:categories))\n" +
+            "where (:text is null or lower(e.annotation) like lower(concat('%',:text,'%')) or lower(e.description) like lower(concat('%',:text,'%')))\n" +
+            "and (:categories is null or e.category_id in (:categories))\n" +
             "and (:paid is null or e.paid = :paid)\n" +
             "and (CAST(:rangeStart AS timestamp) is null or e.event_date > CAST(:rangeStart AS timestamp))\n" +
             "and (CAST(:rangeEnd AS timestamp) is null or e.event_date < CAST(:rangeEnd AS timestamp))", nativeQuery = true)

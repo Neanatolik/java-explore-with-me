@@ -123,7 +123,6 @@ public class AdminController {
     public CompilationDto changeCompilation(@RequestBody UpdateCompilationRequest updateCompilationRequest,
                                             @PathVariable long id) {
         log.info("PATCH /compilations/{}", id);
-        System.out.println("controller: " + updateCompilationRequest);
         return compilationService.changeCompilation(updateCompilationRequest, id);
     }
 

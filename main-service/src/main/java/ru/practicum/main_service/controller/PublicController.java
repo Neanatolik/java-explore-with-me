@@ -73,7 +73,8 @@ public class PublicController {
                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                          @RequestParam(defaultValue = "false") boolean onlyAvailable,
                                          @RequestParam(required = false) String sort,
-                                         @RequestParam(defaultValue = "0") int from, @RequestParam(defaultValue = "10") int size) {
+                                         @RequestParam(defaultValue = "0") int from, @RequestParam(defaultValue = "10") int size,
+                                         HttpServletRequest request) {
         log.info("GET /events?text={}&categories={}&paid={}&rangeStart={}&rangeEnd={}&onlyAvailable={}&sort{}&from={}&size={}",
                 Objects.nonNull(text) ? text : "null",
                 Objects.nonNull(categories) ? StringUtils.join("&categories=", categories) : "null",
@@ -85,6 +86,7 @@ public class PublicController {
                 from,
                 size
         );
+        hitClient.saveHit(new EndpointHitDto("MainService", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         return eventService.getEventsByParameters(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 

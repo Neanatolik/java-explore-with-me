@@ -215,7 +215,7 @@ public class EventServiceImpl implements EventService {
         if (Objects.nonNull(rangeStart) && Objects.nonNull(rangeEnd)) {
             checkDates(rangeStart, rangeEnd);
         }
-        return EventMapper.mapToEventShortDto(eventRepository.getByEventsByParameters(text, categories, paid, rangeStart, rangeEnd, page));
+        return EventMapper.mapToEventShortDto(eventRepository.getByEventsByParameters(text, Objects.nonNull(categories) ? categories : Collections.emptyList(), paid, rangeStart, rangeEnd, page));
     }
 
     @Override
@@ -226,15 +226,15 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventByIdPublic(long id) {
-        setView(id);
+        setView(id, LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1));
         return EventMapper.toEventFullDto(getEventById(id));
     }
 
     @Transactional
-    private void setView(long id) {
+    private void setView(long id, LocalDateTime start, LocalDateTime end) {
         ObjectMapper objectMapper = new ObjectMapper();
         String s = "/events/" + id;
-        ResponseEntity<Object> re = statsClient.getHits(List.of(s), null, null, true);
+        ResponseEntity<Object> re = statsClient.getHits(List.of(s), start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), true);
         List<ViewStatsDto> list = objectMapper.convertValue(re.getBody(), new TypeReference<>() {
         });
         System.out.println(list);

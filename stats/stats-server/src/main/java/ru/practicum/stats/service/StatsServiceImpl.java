@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.dto.ViewStatsDtoIn;
+import ru.practicum.exceptions.BadRequest;
 import ru.practicum.hit.repository.HitRepository;
 import ru.practicum.stats.model.ViewStatsMapper;
 
@@ -23,6 +24,7 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<ViewStatsDto> getStats(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
         List<ViewStatsDtoIn> viewStatsDtos;
+        checkDates(start, end);
         if (Objects.nonNull(uris)) {
             if (unique) {
                 viewStatsDtos = hitRepository.countUniqueByUris(start, end, uris);
@@ -39,4 +41,15 @@ public class StatsServiceImpl implements StatsService {
         List<ViewStatsDto> list = ViewStatsMapper.mapToListViewStats(viewStatsDtos);
         return ViewStatsMapper.mapToListViewStats(viewStatsDtos);
     }
+
+    private void checkDates(LocalDateTime start, LocalDateTime end) {
+        if (Objects.isNull(start) || Objects.isNull(end)) {
+            throw new BadRequest("", "");
+        }
+        if (start.isAfter(end)) {
+            throw new BadRequest("", "");
+        }
+    }
+
+
 }

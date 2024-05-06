@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.client.BaseClient;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,20 +27,13 @@ public class StatsClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getHits(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
+    public ResponseEntity<Object> getHits(List<String> uris, String start, String end, boolean unique) {
         Map<String, Object> parameters = new java.util.HashMap<>(Map.of("unique", unique));
-        StringBuilder path = new StringBuilder("?unique={unique}");
-        if (Objects.nonNull(start)) {
-            parameters.put("start", start);
-            path.append("&start=");
-        }
-        if (Objects.nonNull(end)) {
-            parameters.put("end", end);
-            path.append("&end=");
-        }
+        StringBuilder path = new StringBuilder("?unique={unique}&start=").append(start).append("&end=").append(end);
         if (Objects.nonNull(uris)) {
             path.append("&uris=").append(String.join("&uris=", uris));
         }
+        System.out.println("path: " + path);
         return get(path.toString(), parameters);
     }
 
