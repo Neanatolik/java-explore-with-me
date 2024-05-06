@@ -19,7 +19,7 @@ import java.util.*;
 
 @Service
 @Transactional
-public class CompilationServiceImpl implements CompilationService{
+public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
@@ -94,7 +94,7 @@ public class CompilationServiceImpl implements CompilationService{
         if (Objects.isNull(newCompilationDto.getTitle()) || newCompilationDto.getTitle().isBlank()) {
             throw new BadRequest("", "");
         }
-        if (newCompilationDto.getTitle().length()>50) {
+        if (newCompilationDto.getTitle().length() > 50) {
             throw new BadRequest("", "");
         }
     }

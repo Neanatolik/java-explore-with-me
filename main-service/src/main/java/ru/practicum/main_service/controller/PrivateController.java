@@ -74,7 +74,7 @@ public class PrivateController {
     @PostMapping(path = "/{id}/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto saveRequest(@PathVariable long id, @RequestParam Optional<Long> eventId) {
-        log.info("POST /users/{}/requests?eventid={}", id, eventId.isPresent()?eventId.get():"null");
+        log.info("POST /users/{}/requests?eventid={}", id, eventId.isPresent() ? eventId.get() : "null");
         return requestService.saveRequest(id, eventId.orElseThrow(() -> new BadRequest("Введите id события", "id события должно быть больше 0")));
     }
 

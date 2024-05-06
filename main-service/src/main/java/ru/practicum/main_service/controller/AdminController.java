@@ -45,7 +45,7 @@ public class AdminController {
                                  @RequestParam(defaultValue = "0") int from,
                                  @RequestParam(defaultValue = "10") int size) {
         log.info("GET /admin/users?ids={}&from={}&size={}",
-                Objects.nonNull(ids)?StringUtils.join("&ids=", ids) : "null",
+                Objects.nonNull(ids) ? StringUtils.join("&ids=", ids) : "null",
                 from,
                 size);
         return userService.getUsers(ids, from, size);
