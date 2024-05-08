@@ -55,7 +55,6 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventFullDto> getEvents(List<Integer> users, List<String> states, List<Integer> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        System.out.println("states" + states);
         List<Event> events = eventRepository.getByEventsByParametersAdmin(Objects.nonNull(users) ? users : Collections.emptyList(),
                 Objects.nonNull(states) ? states : Collections.emptyList(),
                 Objects.nonNull(categories) ? categories : Collections.emptyList(),
