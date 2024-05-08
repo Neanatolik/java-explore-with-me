@@ -4,22 +4,19 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.main_service.dto.EventFullDto;
 import ru.practicum.main_service.dto.EventShortDto;
 import ru.practicum.main_service.dto.NewEventDto;
-import ru.practicum.main_service.enums.State;
+import ru.practicum.main_service.enums.EventState;
 import ru.practicum.main_service.model.Category;
 import ru.practicum.main_service.model.Event;
 import ru.practicum.main_service.model.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @UtilityClass
 public class EventMapper {
 
-    public EventFullDto toEventFullDto(Event event) {
+    public EventFullDto toEventFullDto(Event event, Integer views) {
         return new EventFullDto(
                 event.getId(),
                 event.getAnnotation(),
@@ -36,11 +33,11 @@ public class EventMapper {
                 event.getRequestModeration(),
                 event.getState(),
                 event.getTitle(),
-                event.getViews()
+                views
         );
     }
 
-    public Event fromNewEventDto(NewEventDto newEventDto, Category category, User user) {
+    public Event fromNewEventDto(NewEventDto newEventDto, Category category, User user, LocalDateTime createdOn) {
         Event event = new Event();
         event.setAnnotation(newEventDto.getAnnotation());
         event.setCategory(category);
@@ -53,12 +50,12 @@ public class EventMapper {
         event.setRequestModeration(newEventDto.getRequestModeration());
         event.setTitle(newEventDto.getTitle());
         event.setInitiator(user);
-        event.setState(State.PENDING.toString());
-        event.setViews(0);
+        event.setState(EventState.PENDING);
+        event.setCreatedOn(createdOn);
         return event;
     }
 
-    public EventShortDto toEventShortDto(Event event) {
+    public EventShortDto toEventShortDto(Event event, Integer views) {
         return new EventShortDto(event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),
@@ -69,30 +66,30 @@ public class EventMapper {
                 event.getPaid(),
                 event.getState(),
                 event.getTitle(),
-                event.getViews()
+                views
         );
     }
 
-    public List<EventShortDto> mapToEventShortDto(Iterable<Event> events) {
+    public List<EventShortDto> mapToEventShortDto(Iterable<Event> events, Map<Long, Integer> views) {
         List<EventShortDto> dtoList = new ArrayList<>();
         for (Event event : events) {
-            dtoList.add(toEventShortDto(event));
+            dtoList.add(toEventShortDto(event, views.get(event.getId())));
         }
         return dtoList;
     }
 
-    public static List<EventFullDto> mapToEventFullDto(Iterable<Event> events) {
+    public static List<EventFullDto> mapToEventFullDto(Iterable<Event> events, Map<Long, Integer> views) {
         List<EventFullDto> dtoList = new ArrayList<>();
         for (Event event : events) {
-            dtoList.add(toEventFullDto(event));
+            dtoList.add(toEventFullDto(event, views.get(event.getId())));
         }
         return dtoList;
     }
 
-    public static Set<EventShortDto> mapToEventShortDtoSet(Set<Event> events) {
+    public static Set<EventShortDto> mapToEventShortDtoSet(Set<Event> events, Map<Long, Integer> views) {
         Set<EventShortDto> dtoList = new HashSet<>();
         for (Event event : events) {
-            dtoList.add(toEventShortDto(event));
+            dtoList.add(toEventShortDto(event, Objects.nonNull(views) ? views.get(event.getId()) : 0));
         }
         return dtoList;
     }

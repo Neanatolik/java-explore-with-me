@@ -38,7 +38,6 @@ public class StatsServiceImpl implements StatsService {
                 viewStatsDtos = hitRepository.countNonUniqueWithoutUris(start, end);
             }
         }
-        List<ViewStatsDto> list = ViewStatsMapper.mapToListViewStats(viewStatsDtos);
         return ViewStatsMapper.mapToListViewStats(viewStatsDtos);
     }
 

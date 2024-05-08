@@ -3,6 +3,7 @@ package ru.practicum.main_service.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.main_service.enums.RequestState;
 
 @Data
 @AllArgsConstructor
@@ -12,5 +13,5 @@ public class ParticipationRequestDto {
     private String created;
     private Long event;
     private Long requester;
-    private String status;
+    private RequestState status;
 }

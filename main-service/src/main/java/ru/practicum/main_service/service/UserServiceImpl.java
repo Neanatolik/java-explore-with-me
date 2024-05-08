@@ -1,7 +1,5 @@
 package ru.practicum.main_service.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -9,10 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_service.dto.NewUserRequest;
 import ru.practicum.main_service.dto.UserDto;
 import ru.practicum.main_service.dto.mapper.UserMapper;
-import ru.practicum.main_service.exceptions.BadRequest;
 import ru.practicum.main_service.exceptions.Conflict;
-import ru.practicum.main_service.repository.*;
-import ru.practicum.stats.StatsClient;
+import ru.practicum.main_service.exceptions.NotFoundException;
+import ru.practicum.main_service.repository.UserRepository;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,14 +21,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CategoryRepository categoryRepository, EventRepository eventRepository, CompilationRepository compilationRepository, LocationRepository locationRepository, RequestRepository requestRepository, StatsClient statsClient, ObjectMapper objectMapper) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
     public UserDto saveUser(NewUserRequest newUserRequest) {
-        checkUser(newUserRequest);
-        checkEmail(newUserRequest.getEmail());
         try {
             return UserMapper.toUserDto(userRepository.save(UserMapper.fromNewUserRequest(newUserRequest)));
         } catch (Exception e) {
@@ -49,30 +44,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(long id) {
-        userRepository.deleteById(id);
-    }
-
-    private void checkUser(NewUserRequest newUserRequest) {
-        if (Objects.isNull(newUserRequest.getName()) || newUserRequest.getName().isBlank()) {
-            throw new BadRequest("Укажите имя", "Пустое значение имени");
-        }
-        if (newUserRequest.getName().length() < 2) {
-            throw new BadRequest("Длина имени должна быть 2 и более символа", "Неверное значение имени");
-        }
-        if (newUserRequest.getName().length() > 250) {
-            throw new BadRequest("Длина имени должна быть меньше 250 символов", "Неверное значение имени");
-        }
-    }
-
-    private void checkEmail(String email) {
-        if (Objects.isNull(email)) {
-            throw new BadRequest("Пустой email", "Ошибка запроса");
-        }
-        if (email.length() == 254) return;
-        //Не самое верное, но тесты постман при проверке почты передают как email слово из 254 символов
-        //Исключил только этот случай
-        if (!EmailValidator.getInstance().isValid(email)) {
-            throw new BadRequest("Укажите верное значение почты", "Неверное значение почты");
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+        } else {
+            throw new NotFoundException("Данный user не найден", "Ошибка запроса");
         }
     }
 

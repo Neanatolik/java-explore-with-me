@@ -3,6 +3,7 @@ package ru.practicum.main_service.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.main_service.enums.EventState;
 import ru.practicum.main_service.model.Category;
 import ru.practicum.main_service.model.Location;
 
@@ -25,7 +26,7 @@ public class EventFullDto {
     private Integer participantLimit;
     private LocalDateTime publishedOn;
     private Boolean requestModeration;
-    private String state;
+    private EventState state;
     private String title;
     private Integer views;
 }

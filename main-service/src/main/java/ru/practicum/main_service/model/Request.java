@@ -1,6 +1,7 @@
 package ru.practicum.main_service.model;
 
 import lombok.*;
+import ru.practicum.main_service.enums.RequestState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,11 +18,14 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime created;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "event_id")
     private Event event;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "user_id")
     private User requester;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private RequestState status;
 }

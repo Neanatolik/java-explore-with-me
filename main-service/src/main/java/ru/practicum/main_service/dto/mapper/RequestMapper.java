@@ -2,8 +2,7 @@ package ru.practicum.main_service.dto.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.main_service.dto.ParticipationRequestDto;
-import ru.practicum.main_service.enums.State;
-import ru.practicum.main_service.enums.StateState;
+import ru.practicum.main_service.enums.RequestState;
 import ru.practicum.main_service.model.Event;
 import ru.practicum.main_service.model.Request;
 import ru.practicum.main_service.model.User;
@@ -29,9 +28,9 @@ public class RequestMapper {
         request.setEvent(event);
         request.setRequester(user);
         if (event.getParticipantLimit() == 0) {
-            request.setStatus(StateState.CONFIRMED.toString());
+            request.setStatus(RequestState.CONFIRMED);
         } else {
-            request.setStatus(State.PENDING.toString());
+            request.setStatus(RequestState.PENDING);
         }
         return request;
     }

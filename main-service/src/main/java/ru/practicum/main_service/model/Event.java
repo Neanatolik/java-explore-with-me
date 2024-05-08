@@ -2,6 +2,7 @@ package ru.practicum.main_service.model;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.main_service.enums.EventState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,21 +19,25 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String annotation;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "category_id")
     private Category category;
     @Column(name = "confirmed_requests")
     private Integer confirmedRequests;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_on")
     private LocalDateTime createdOn;
     private String description;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "event_date")
     private LocalDateTime eventDate;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "user_id")
     private User initiator;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "location")
     private Location location;
     private Boolean paid;
@@ -42,7 +47,7 @@ public class Event {
     private LocalDateTime publishedOn;
     @Column(name = "request_moderation")
     private Boolean requestModeration;
-    private String state;
+    @Enumerated(EnumType.STRING)
+    private EventState state;
     private String title;
-    private Integer views;
 }

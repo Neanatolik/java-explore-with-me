@@ -9,6 +9,7 @@ import ru.practicum.main_service.model.Event;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -43,7 +44,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and (:categories is null or e.category_id in (:categories))\n" +
             "and (CAST(:rangeStart AS timestamp) is null or e.event_date > CAST(:rangeStart AS timestamp))\n" +
             "and (CAST(:rangeEnd AS timestamp) is null or e.event_date < CAST(:rangeEnd AS timestamp))", nativeQuery = true)
-    Iterable<Event> getByEventsByParametersAdmin(List<Integer> users,
+    List<Event> getByEventsByParametersAdmin(List<Integer> users,
                                                  List<String> states,
                                                  List<Integer> categories,
                                                  LocalDateTime rangeStart,
@@ -55,12 +56,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "set confirmed_requests = confirmed_requests + :size\n" +
             "where e.id = :id", nativeQuery = true)
     void incrementConfirmedRequests(long id, int size);
-
-    @Modifying(clearAutomatically = true)
-    @Query(value = "update events e\n" +
-            "set views = :hits\n" +
-            "where e.id = :id", nativeQuery = true)
-    void setView(long id, Integer hits);
 
     @Query(value = "SELECT EXISTS(select category_id\n" +
             "from events\n" +
@@ -77,4 +72,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "set confirmed_requests = :confirmedRequests\n" +
             "where e.id = :id", nativeQuery = true)
     void updateEvent(long confirmedRequests, long id);
+
+    @Query(value = "select *\n" +
+            "from events e\n" +
+            "where e.id in (:event)", nativeQuery = true)
+    Set<Event> getByListOfId(Set<Long> event);
 }

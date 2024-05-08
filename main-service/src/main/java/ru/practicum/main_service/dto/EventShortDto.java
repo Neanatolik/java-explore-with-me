@@ -3,6 +3,7 @@ package ru.practicum.main_service.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.main_service.enums.EventState;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +19,7 @@ public class EventShortDto {
     private String eventDate;
     private UserShortDto initiator;
     private Boolean paid;
-    private String state;
+    private EventState state;
     private String title;
     private Integer views;
 }

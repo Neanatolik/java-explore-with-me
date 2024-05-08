@@ -15,7 +15,10 @@ import ru.practicum.main_service.model.Event;
 import ru.practicum.main_service.repository.CompilationRepository;
 import ru.practicum.main_service.repository.EventRepository;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -29,11 +32,9 @@ public class CompilationServiceImpl implements CompilationService {
         this.eventRepository = eventRepository;
     }
 
-
     @Override
     public CompilationDto saveCompilation(NewCompilationDto newCompilationDto) {
-        checkNewCompilationDto(newCompilationDto);
-        return CompilationMapper.toCompilationDto(compilationRepository.save(CompilationMapper.fromNewCompilationDto(newCompilationDto, getSetOfEvents(newCompilationDto.getEvents()))));
+        return CompilationMapper.toCompilationDto(compilationRepository.save(CompilationMapper.fromNewCompilationDto(newCompilationDto, getSetOfEvents(newCompilationDto.getEvents()))), null);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto changeCompilation(UpdateCompilationRequest updateCompilationRequest, long id) {
-        return CompilationMapper.toCompilationDto(compilationRepository.save(updateCompilation(compilationRepository.getReferenceById(id), updateCompilationRequest)));
+        return CompilationMapper.toCompilationDto(compilationRepository.save(updateCompilation(compilationRepository.getReferenceById(id), updateCompilationRequest)), null);
     }
 
     @Override
@@ -54,17 +55,13 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto getCompilationById(long id) {
-        Optional<Compilation> compilation = compilationRepository.findById(id);
-        if (compilation.isEmpty()) {
-            throw new NotFoundException("Данный compilation не найден", "Ошибка запроса");
-        }
-        return CompilationMapper.toCompilationDto(compilation.get());
+        return CompilationMapper.toCompilationDto(compilationRepository.findById(id).orElseThrow(() -> new NotFoundException("Данный compilation не найден", "Ошибка запроса")), null);
     }
 
     private Compilation updateCompilation(Compilation compilation, UpdateCompilationRequest updateCompilationRequest) {
         if (Objects.nonNull(updateCompilationRequest.getTitle())) {
-            if (updateCompilationRequest.getTitle().length() > 50 || updateCompilationRequest.getTitle().isBlank()) {
-                throw new BadRequest("title должен быть от 1 до 50 символов", "Ошибка обновления данных");
+            if (updateCompilationRequest.getTitle().isBlank()) {
+                throw new BadRequest("Пустой текст", "Ошибка обновления данных");
             }
             compilation.setTitle(updateCompilationRequest.getTitle());
         }
@@ -78,20 +75,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     private Set<Event> getSetOfEvents(Set<Long> event) {
-        Set<Event> events = new HashSet<>();
-        if (Objects.isNull(event)) return events;
-        for (Long eventId : event) {
-            events.add(eventRepository.getReferenceById(eventId));
-        }
-        return events;
-    }
-
-    private void checkNewCompilationDto(NewCompilationDto newCompilationDto) {
-        if (Objects.isNull(newCompilationDto.getTitle()) || newCompilationDto.getTitle().isBlank()) {
-            throw new BadRequest("отсуствует title", "Ошибка запроса");
-        }
-        if (newCompilationDto.getTitle().length() > 50) {
-            throw new BadRequest("title должен быть не более 50", "Ошибка запроса");
-        }
+        if (Objects.isNull(event)) return new HashSet<>();
+        return eventRepository.getByListOfId(event);
     }
 }
