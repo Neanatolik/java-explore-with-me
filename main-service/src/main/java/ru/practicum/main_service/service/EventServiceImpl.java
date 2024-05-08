@@ -269,16 +269,19 @@ public class EventServiceImpl implements EventService {
         }
         return event;
     }
+
     private void checkDates(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
         if (rangeEnd.isBefore(rangeStart)) {
             throw new BadRequest("Дата start позже end", "Ошибка запроса");
         }
     }
+
     private void checkNewEventDto(NewEventDto newEventDto) {
         if (LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
             throw new BadRequest("event date раньше чем через 2 часа", "Ошибка запроса");
         }
     }
+    
     private Event updateEventDataAdmin(UpdateEventUserRequest u, Event event) {
         if (Objects.nonNull(u.getAnnotation())) {
             event.setAnnotation(u.getAnnotation());
