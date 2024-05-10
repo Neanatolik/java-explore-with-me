@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         if (Objects.nonNull(ids)) {

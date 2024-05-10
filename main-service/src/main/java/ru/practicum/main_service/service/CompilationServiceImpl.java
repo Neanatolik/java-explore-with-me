@@ -48,12 +48,14 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(boolean pinned, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         return CompilationMapper.mapToCompilationDto(compilationRepository.getCompilations(pinned, page));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CompilationDto getCompilationById(long id) {
         return CompilationMapper.toCompilationDto(compilationRepository.findById(id).orElseThrow(() -> new NotFoundException("Данный compilation не найден", "Ошибка запроса")), null);
     }

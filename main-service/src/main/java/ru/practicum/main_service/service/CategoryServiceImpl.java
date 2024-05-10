@@ -52,12 +52,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         return CategoryMapper.mapToCategoryDto(categoryRepository.findAll(page));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto getCategoriesById(long id) {
         return CategoryMapper.toCategoryDto(getCategoryById(id));
     }

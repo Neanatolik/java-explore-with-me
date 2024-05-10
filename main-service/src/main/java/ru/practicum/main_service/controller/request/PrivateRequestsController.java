@@ -1,4 +1,4 @@
-package ru.practicum.main_service.controller;
+package ru.practicum.main_service.controller.request;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

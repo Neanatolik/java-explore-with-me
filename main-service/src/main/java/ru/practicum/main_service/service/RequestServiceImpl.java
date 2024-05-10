@@ -42,11 +42,13 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestById(long id, long eventId) {
         return RequestMapper.mapToParticipationRequestDto(requestRepository.getReferenceByIds(eventId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequests(long id) {
         return RequestMapper.mapToParticipationRequestDto(requestRepository.findByUserId(id));
     }

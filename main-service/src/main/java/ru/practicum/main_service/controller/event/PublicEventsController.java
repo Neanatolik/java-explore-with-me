@@ -1,9 +1,10 @@
-package ru.practicum.main_service.controller;
+package ru.practicum.main_service.controller.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.hit.HitClient;
@@ -21,6 +22,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "/events")
+@Validated
 @Slf4j
 public class PublicEventsController {
     private final HitClient hitClient;
