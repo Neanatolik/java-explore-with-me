@@ -446,7 +446,7 @@ body.theme-light code {
     }
 
     function toggleTheme() {
-        if (localStorage.getItem('theme') === 'theme-light') {
+        if (localStorage.getItem('theme')  == = 'theme-light') {
             setTheme('theme-dark');
         } else {
             setTheme('theme-light');
@@ -1250,7 +1250,7 @@ body.theme-light code {
 <script>
 (function () {
   var sliderChecked = true;
-  if (localStorage.getItem('theme') === 'theme-light') {
+  if (localStorage.getItem('theme')  == = 'theme-light') {
     setTheme('theme-light');
     sliderChecked = false;
   } else {
@@ -1292,8 +1292,8 @@ $(document).ready(function() {
 
 <script>
 $('#openAll').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
-switch (clickCount){
+let clickCount = $(this).data("clickCount")  ||  1
+switch (clickCount) {
     case 1:
         {{#each aggregations}}
             $('#folder-{{parent.id}}-iteration-{{parent.iteration}}').removeClass('collapsed')
@@ -1318,8 +1318,8 @@ $(this).data("clickCount", clickCount)
 
 <script>
 $('#openAllRequests').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
-switch (clickCount){
+let clickCount = $(this).data("clickCount")  ||  1
+switch (clickCount) {
     case 1:
         {{#each aggregations}}
         {{#each executions}}
@@ -1352,8 +1352,8 @@ $(this).data("clickCount", clickCount)
 
 <script>
 $('#openAllSkipped').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
-switch (clickCount){
+let clickCount = $(this).data("clickCount")  ||  1
+switch (clickCount) {
     case 1:
         {{#each aggregations}}
         {{#each executions}}
@@ -1386,10 +1386,10 @@ $(this).data("clickCount", clickCount)
 
 <script>
 $('#openAllFailed').on('click', function(e) {
-let clickCount = $(this).data("clickCount") || 1
+let clickCount = $(this).data("clickCount")  ||  1
 let failedItemContent
 let failedItemHeading
-switch (clickCount){
+switch (clickCount) {
     case 1:
         {{#each summary.failures}}
             failedItemHeading = $('#fails-{{error.id}}');
@@ -1434,7 +1434,7 @@ function isJSON(data)
 
 function isXML(data)
 {
-    return (data.length > 0 && data[0] === '<');
+    return (data.length > 0 && data[0]  == = '<');
 }
 
 // see https://gist.github.com/sente/1083506/d2834134cd070dbcc08bf42ee27dabb746a1c54d#gistcomment-2254622
@@ -1464,12 +1464,12 @@ function formatXML(data) {
 $(".prettyPrint").each(function () {
         var data = $(this).text();
         // Verify whether data is JSON
-        if(isJSON(data))
+        if (isJSON(data))
         {
                 obj = JSON.parse(data);
                 data = JSON.stringify(obj, null, 2);
         }
-        else if(isXML(data)) {
+        else if (isXML(data)) {
             data = formatXML(data);
         }
         $(this).text(data);
@@ -1526,7 +1526,7 @@ $(".prettyPrint").each(function () {
 window.onscroll = function() {scrollFunction()};
 
 function scrollFunction() {
-  if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+  if (document.body.scrollTop > 20  ||  document.documentElement.scrollTop > 20) {
     document.getElementById("topOfRequestsScreen").style.display = "block";
     document.getElementById("topOfFailuresScreen").style.display = "block";
     document.getElementById("topOfSkippedScreen").style.display = "block";
@@ -1573,7 +1573,7 @@ window.onload = function () {
 
   // set display for all blocks of response
   var allItems = document.querySelectorAll('[class*=iteration-]');
-  allItems.forEach(function(elem){
+  allItems.forEach(function(elem) {
     elem.style.display = 'block';
   });
 
@@ -1583,7 +1583,7 @@ window.onload = function () {
 
   let menu = document.querySelector('#execution-menu .nav');
 
-  for(var i = 0; i < totalIterations; i++)
+  for (var i = 0; i < totalIterations; i++)
   {
     let li = document.createElement('li');
     li.appendChild(document.createTextNode((i + 1)));
@@ -1599,7 +1599,7 @@ window.onload = function () {
       })
 
       let allMenus = document.querySelectorAll('[id*=iteration-]');
-      allMenus.forEach(function(elem){
+      allMenus.forEach(function(elem) {
         elem.style.borderBottom = 'none';
       })
 
@@ -1607,7 +1607,7 @@ window.onload = function () {
 
       let items = document.querySelectorAll("." + this.id + ':not(.row)');
       items.forEach(function(elem) {
-        elem.style.display = elem.style.display == 'block' ? 'none' : 'block';
+        elem.style.display = elem.style.display  ==  'block' ? 'none' : 'block';
       })
     });
     menu.appendChild(li);
@@ -1630,7 +1630,7 @@ window.onload = function () {
 <!-- Create the Selected Iteration Label -->
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
     $(function() {
         $("#iterationList li").click(function() {
             document.getElementById('iterationSelected').innerHTML = "Iteration " + this.innerHTML + " selected"
@@ -1655,12 +1655,12 @@ $("#filterInput").on("input paste", function() {
 
 <script>
 $('#showOnlyFailures').on('click', function(e) {
-    let clickCount = $(this).data("clickCount") || 1
-	$("#filterInput").val()!="" && clickCount==1 ? $("#filterInput").val('').trigger('input'): null;
+    let clickCount = $(this).data("clickCount")  ||  1
+	$("#filterInput").val() != "" && clickCount == 1 ? $("#filterInput").val('').trigger('input'): null;
     let selectedIteration = $('#iterationList li').filter(function () {
         return $(this).css('border-bottom').indexOf("solid") > -1 && $(this).hasClass('itFailed');
     });
-    selectedIteration.length || clickCount > 1 ? null : $("#iterationList li.itFailed")[0].click()
+    selectedIteration.length  ||  clickCount > 1 ? null : $("#iterationList li.itFailed")[0].click()
     $("#iterationList li.itPassed").toggle()
     $("div.bg-success [id*=requests]").parents('[class^="row iteration-"]').toggle();
     clickCount = clickCount > 1 ? 1 : ++clickCount;

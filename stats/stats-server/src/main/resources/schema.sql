@@ -4,6 +4,6 @@ CREATE TABLE IF NOT EXISTS hits (
   app VARCHAR,
   uri VARCHAR,
   ip VARCHAR,
-  timestamp VARCHAR,
+  timestamp TIMESTAMP,
   CONSTRAINT pk_hit PRIMARY KEY (id)
 );

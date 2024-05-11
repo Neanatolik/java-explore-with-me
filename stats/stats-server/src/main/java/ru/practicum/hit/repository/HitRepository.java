@@ -19,7 +19,9 @@ public interface HitRepository extends JpaRepository<Hit, Long> {
 
     @Query(value = "select app, uri, count(distinct ip) as hits\n" +
             "from hits as h\n" +
-            "where uri IN (:uris) and h.timestamp between :start and :end\n" +
+            "where uri IN (:uris)\n" +
+            "and (h.timestamp > CAST(:start AS timestamp) or CAST(:start AS timestamp) is null)\n" +
+            "and (h.timestamp < CAST(:end AS timestamp) or CAST(:end AS timestamp) is null)\n" +
             "group by app, uri, ip\n" +
             "order by hits desc", nativeQuery = true)
     List<ViewStatsDtoIn> countUniqueByUris(LocalDateTime start, LocalDateTime end, List<String> uris);

@@ -22,7 +22,7 @@ USAGE
     exit 1
 }
 
-wait_for()
+wait_for ()
 {
     if [[ $WAITFORIT_TIMEOUT -gt 0 ]]; then
         echoerr "$WAITFORIT_cmdname: waiting $WAITFORIT_TIMEOUT seconds for $WAITFORIT_HOST:$WAITFORIT_PORT"
@@ -92,7 +92,7 @@ do
         ;;
         -h)
         WAITFORIT_HOST="$2"
-        if [[ $WAITFORIT_HOST == "" ]]; then break; fi
+        if [[ $WAITFORIT_HOST  ==  "" ]]; then break; fi
         shift 2
         ;;
         --host=*)
@@ -101,7 +101,7 @@ do
         ;;
         -p)
         WAITFORIT_PORT="$2"
-        if [[ $WAITFORIT_PORT == "" ]]; then break; fi
+        if [[ $WAITFORIT_PORT  ==  "" ]]; then break; fi
         shift 2
         ;;
         --port=*)
@@ -110,7 +110,7 @@ do
         ;;
         -t)
         WAITFORIT_TIMEOUT="$2"
-        if [[ $WAITFORIT_TIMEOUT == "" ]]; then break; fi
+        if [[ $WAITFORIT_TIMEOUT  ==  "" ]]; then break; fi
         shift 2
         ;;
         --timeout=*)
@@ -132,7 +132,7 @@ do
     esac
 done
 
-if [[ "$WAITFORIT_HOST" == "" || "$WAITFORIT_PORT" == "" ]]; then
+if [[ "$WAITFORIT_HOST"  ==  ""  ||  "$WAITFORIT_PORT"  ==  "" ]]; then
     echoerr "Error: you need to provide a host and port to test."
     usage
 fi
@@ -144,7 +144,7 @@ WAITFORIT_QUIET=${WAITFORIT_QUIET:-0}
 
 # Check to see if timeout is from busybox?
 WAITFORIT_TIMEOUT_PATH=$(type -p timeout)
-WAITFORIT_TIMEOUT_PATH=$(realpath $WAITFORIT_TIMEOUT_PATH 2>/dev/null || readlink -f $WAITFORIT_TIMEOUT_PATH)
+WAITFORIT_TIMEOUT_PATH=$(realpath $WAITFORIT_TIMEOUT_PATH 2>/dev/null  ||  readlink -f $WAITFORIT_TIMEOUT_PATH)
 
 WAITFORIT_BUSYTIMEFLAG=""
 if [[ $WAITFORIT_TIMEOUT_PATH =~ "busybox" ]]; then
@@ -172,7 +172,7 @@ else
     fi
 fi
 
-if [[ $WAITFORIT_CLI != "" ]]; then
+if [[ $WAITFORIT_CLI  !=  "" ]]; then
     if [[ $WAITFORIT_RESULT -ne 0 && $WAITFORIT_STRICT -eq 1 ]]; then
         echoerr "$WAITFORIT_cmdname: strict mode, refusing to execute subprocess"
         exit $WAITFORIT_RESULT
