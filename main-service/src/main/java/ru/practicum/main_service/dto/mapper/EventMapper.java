@@ -1,9 +1,10 @@
 package ru.practicum.main_service.dto.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.main_service.dto.EventFullDto;
-import ru.practicum.main_service.dto.EventShortDto;
-import ru.practicum.main_service.dto.NewEventDto;
+import ru.practicum.main_service.dto.comment.CommentDto;
+import ru.practicum.main_service.dto.event.EventFullDto;
+import ru.practicum.main_service.dto.event.EventShortDto;
+import ru.practicum.main_service.dto.event.NewEventDto;
 import ru.practicum.main_service.enums.EventState;
 import ru.practicum.main_service.model.Category;
 import ru.practicum.main_service.model.Event;
@@ -16,7 +17,7 @@ import java.util.*;
 @UtilityClass
 public class EventMapper {
 
-    public EventFullDto toEventFullDto(Event event, Integer views) {
+    public EventFullDto toEventFullDto(Event event, Integer views, List<CommentDto> comments) {
         return new EventFullDto(
                 event.getId(),
                 event.getAnnotation(),
@@ -33,7 +34,9 @@ public class EventMapper {
                 event.getRequestModeration(),
                 event.getState(),
                 event.getTitle(),
-                views
+                views,
+                event.getCommentState(),
+                comments
         );
     }
 
@@ -52,6 +55,7 @@ public class EventMapper {
         event.setInitiator(user);
         event.setState(EventState.PENDING);
         event.setCreatedOn(createdOn);
+        event.setCommentState(newEventDto.getCommentState());
         return event;
     }
 
@@ -78,10 +82,10 @@ public class EventMapper {
         return dtoList;
     }
 
-    public static List<EventFullDto> mapToEventFullDto(Iterable<Event> events, Map<Long, Integer> views) {
+    public static List<EventFullDto> mapToEventFullDto(Iterable<Event> events, Map<Long, Integer> views, Map<Long, List<CommentDto>> comments) {
         List<EventFullDto> dtoList = new ArrayList<>();
         for (Event event : events) {
-            dtoList.add(toEventFullDto(event, views.get(event.getId())));
+            dtoList.add(toEventFullDto(event, views.get(event.getId()), comments.get(event.getId())));
         }
         return dtoList;
     }

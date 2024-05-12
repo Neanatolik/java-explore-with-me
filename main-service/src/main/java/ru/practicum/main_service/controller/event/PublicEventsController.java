@@ -8,8 +8,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.hit.HitClient;
-import ru.practicum.main_service.dto.EventFullDto;
-import ru.practicum.main_service.dto.EventShortDto;
+import ru.practicum.main_service.dto.event.EventFullDto;
+import ru.practicum.main_service.dto.event.EventShortDto;
 import ru.practicum.main_service.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;

@@ -77,4 +77,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "from events e\n" +
             "where e.id in (:event)", nativeQuery = true)
     Set<Event> getByListOfId(Set<Long> event);
+
+    @Query(value = "SELECT EXISTS(select id\n" +
+            "from events\n" +
+            "where id = :eventId and comment_state = 'CLOSE')", nativeQuery = true)
+    boolean checkCommentState(long eventId);
 }

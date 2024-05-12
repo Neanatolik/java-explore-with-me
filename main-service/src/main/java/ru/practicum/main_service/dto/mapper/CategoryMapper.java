@@ -1,8 +1,8 @@
 package ru.practicum.main_service.dto.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.main_service.dto.CategoryDto;
-import ru.practicum.main_service.dto.NewCategoryDto;
+import ru.practicum.main_service.dto.category.CategoryDto;
+import ru.practicum.main_service.dto.category.NewCategoryDto;
 import ru.practicum.main_service.model.Category;
 
 import java.util.ArrayList;

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main_service.dto.EventFullDto;
-import ru.practicum.main_service.dto.UpdateEventAdminRequest;
+import ru.practicum.main_service.dto.event.EventFullDto;
+import ru.practicum.main_service.dto.event.UpdateEventAdminRequest;
 import ru.practicum.main_service.service.EventService;
 
 import javax.validation.Valid;

@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main_service.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.main_service.dto.EventRequestStatusUpdateResult;
-import ru.practicum.main_service.dto.ParticipationRequestDto;
+import ru.practicum.main_service.dto.request.EventRequestStatusUpdateRequest;
+import ru.practicum.main_service.dto.request.EventRequestStatusUpdateResult;
+import ru.practicum.main_service.dto.request.ParticipationRequestDto;
 import ru.practicum.main_service.service.RequestService;
 
 import javax.validation.constraints.Positive;

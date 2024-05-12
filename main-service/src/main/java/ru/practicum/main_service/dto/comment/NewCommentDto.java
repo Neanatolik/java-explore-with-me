@@ -1,4 +1,4 @@
-package ru.practicum.main_service.dto;
+package ru.practicum.main_service.dto.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,9 +10,8 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDto {
-    private Long id;
+public class NewCommentDto {
     @NotBlank
-    @Length(max = 50)
-    private String name;
+    @Length(max = 1000)
+    private String comment;
 }

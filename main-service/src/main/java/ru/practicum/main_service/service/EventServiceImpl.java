@@ -8,18 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.ViewStatsDto;
-import ru.practicum.main_service.dto.*;
+import ru.practicum.main_service.dto.comment.CommentDto;
+import ru.practicum.main_service.dto.event.*;
+import ru.practicum.main_service.dto.mapper.CommentMapper;
 import ru.practicum.main_service.dto.mapper.EventMapper;
+import ru.practicum.main_service.enums.EventCommentState;
 import ru.practicum.main_service.enums.EventState;
 import ru.practicum.main_service.enums.RequestResponseState;
 import ru.practicum.main_service.exceptions.BadRequest;
 import ru.practicum.main_service.exceptions.Conflict;
 import ru.practicum.main_service.exceptions.NotFoundException;
 import ru.practicum.main_service.model.Event;
-import ru.practicum.main_service.repository.CategoryRepository;
-import ru.practicum.main_service.repository.EventRepository;
-import ru.practicum.main_service.repository.LocationRepository;
-import ru.practicum.main_service.repository.UserRepository;
+import ru.practicum.main_service.repository.*;
 import ru.practicum.stats.StatsClient;
 
 import java.time.LocalDateTime;
@@ -36,6 +36,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final StatsClient statsClient;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
 
     @Autowired
@@ -43,12 +44,13 @@ public class EventServiceImpl implements EventService {
                             LocationRepository locationRepository,
                             CategoryRepository categoryRepository,
                             StatsClient statsClient,
-                            UserRepository userRepository) {
+                            UserRepository userRepository, CommentRepository commentRepository) {
         this.eventRepository = eventRepository;
         this.locationRepository = locationRepository;
         this.categoryRepository = categoryRepository;
         this.statsClient = statsClient;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -61,7 +63,19 @@ public class EventServiceImpl implements EventService {
                 rangeStart, rangeEnd, page);
         List<String> url = events.stream().map(event -> "/events/" + event.getId()).collect(Collectors.toList());
         Map<Long, Integer> views = getMapViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), url);
-        return EventMapper.mapToEventFullDto(events, views);
+        return EventMapper.mapToEventFullDto(events, views, getMapComments(events));
+    }
+
+    private Map<Long, List<CommentDto>> getMapComments(List<Event> events) {
+        Map<Long, List<CommentDto>> comments = new HashMap<>();
+        for (Event event : events) {
+            comments.put(event.getId(), CommentMapper.mapToCommentDto(commentRepository.findByEventId(event.getId())));
+        }
+        return comments;
+    }
+
+    private List<CommentDto> getListComments(long eventId) {
+        return CommentMapper.mapToCommentDto(commentRepository.findByEventId(eventId));
     }
 
     @Override
@@ -71,7 +85,7 @@ public class EventServiceImpl implements EventService {
             locationRepository.save(updateEventAdminRequest.getLocation());
         }
         Event event = checkUpdateEventAdminRequestAndGetEvent(updateEventAdminRequest, id);
-        return EventMapper.toEventFullDto(eventRepository.save(event), getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id));
+        return EventMapper.toEventFullDto(eventRepository.save(event), getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id), getListComments(id));
     }
 
     @Override
@@ -80,11 +94,11 @@ public class EventServiceImpl implements EventService {
         locationRepository.save(newEventDto.getLocation());
         checkNewEventDto(newEventDto);
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id);
-        return EventMapper.toEventFullDto(eventRepository.save(EventMapper.fromNewEventDto(newEventDto,
-                        categoryRepository.getReferenceById(newEventDto.getCategory()),
-                        userRepository.getReferenceById(id),
-                        LocalDateTime.now())),
-                views);
+        Event event = eventRepository.save(EventMapper.fromNewEventDto(newEventDto,
+                categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> new NotFoundException("category не найдена", "Ошибка запроса")),
+                userRepository.findById(id).orElseThrow(() -> new NotFoundException("user не найден", "Ошибка запроса")),
+                LocalDateTime.now()));
+        return EventMapper.toEventFullDto(event, views, getListComments(event.getId()));
     }
 
     @Override
@@ -96,14 +110,14 @@ public class EventServiceImpl implements EventService {
             locationRepository.save(updateEventUserRequest.getLocation());
         }
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id);
-        return EventMapper.toEventFullDto(eventRepository.save(updateEventDataAdmin(updateEventUserRequest, event)), views);
+        return EventMapper.toEventFullDto(eventRepository.save(updateEventData(updateEventUserRequest, event)), views, getListComments(event.getId()));
     }
 
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getEventById(long id, long eventId) {
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), eventId);
-        return EventMapper.toEventFullDto(eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("event не найдено", "Ошибка запроса")), views);
+        return EventMapper.toEventFullDto(eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("event не найдено", "Ошибка запроса")), views, getListComments(eventId));
     }
 
     @Override
@@ -134,7 +148,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventByIdPublic(long id) {
         Event event = getEventById(id);
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id);
-        return EventMapper.toEventFullDto(event, views);
+        return EventMapper.toEventFullDto(event, views, getListComments(id));
     }
 
     private Integer getViews(LocalDateTime start, LocalDateTime end, long id) {
@@ -208,6 +222,9 @@ public class EventServiceImpl implements EventService {
         if (Objects.nonNull(u.getLocation())) {
             event.setLocation(u.getLocation());
         }
+        if (Objects.nonNull(u.getCommentState())) {
+            event.setCommentState(u.getCommentState());
+        }
         if (Objects.nonNull(u.getCategory())) {
             event.setCategory(categoryRepository.getReferenceById(Long.valueOf(u.getCategory())));
         }
@@ -263,6 +280,7 @@ public class EventServiceImpl implements EventService {
                         throw new Conflict("Уже отменен", "Ошибка запроса");
                     }
                     event.setState(CANCELED);
+                    event.setCommentState(EventCommentState.CLOSE);
                     break;
             }
         }
@@ -275,9 +293,12 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private Event updateEventDataAdmin(UpdateEventUserRequest u, Event event) {
+    private Event updateEventData(UpdateEventUserRequest u, Event event) {
         if (Objects.nonNull(u.getAnnotation())) {
             event.setAnnotation(u.getAnnotation());
+        }
+        if (Objects.nonNull(u.getCommentState())) {
+            event.setCommentState(u.getCommentState());
         }
         if (Objects.nonNull(u.getCategory())) {
             event.setCategory(categoryRepository.findById(Long.valueOf(u.getCategory())).orElseThrow(() -> new NotFoundException("Данная category не найдена", "Ошибка запроса")));
@@ -304,6 +325,7 @@ public class EventServiceImpl implements EventService {
             switch (RequestResponseState.valueOf(u.getStateAction())) {
                 case CANCEL_REVIEW:
                     event.setState(CANCELED);
+                    event.setCommentState(EventCommentState.CLOSE);
                     break;
                 case SEND_TO_REVIEW:
                     event.setState(PENDING);

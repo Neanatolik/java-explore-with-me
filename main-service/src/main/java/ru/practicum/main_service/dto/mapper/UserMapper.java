@@ -1,9 +1,9 @@
 package ru.practicum.main_service.dto.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.main_service.dto.NewUserRequest;
-import ru.practicum.main_service.dto.UserDto;
-import ru.practicum.main_service.dto.UserShortDto;
+import ru.practicum.main_service.dto.user.NewUserRequest;
+import ru.practicum.main_service.dto.user.UserDto;
+import ru.practicum.main_service.dto.user.UserShortDto;
 import ru.practicum.main_service.model.User;
 
 import java.util.ArrayList;

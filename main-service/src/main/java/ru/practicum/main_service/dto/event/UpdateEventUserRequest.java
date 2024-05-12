@@ -1,35 +1,31 @@
-package ru.practicum.main_service.dto;
+package ru.practicum.main_service.dto.event;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import ru.practicum.main_service.enums.EventCommentState;
 import ru.practicum.main_service.model.Location;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
-@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewEventDto {
-    @NotBlank
+public class UpdateEventUserRequest {
     @Length(min = 20, max = 2000)
     private String annotation;
-    private Long category;
-    @NotBlank
+    private Integer category;
     @Length(min = 20, max = 7000)
     private String description;
-    @NonNull
     private String eventDate;
     private Location location;
-    @Builder.Default
-    private Boolean paid = false;
+    private Boolean paid;
     @PositiveOrZero
-    @Builder.Default
-    private Integer participantLimit = 0;
-    @Builder.Default
-    private Boolean requestModeration = true;
-    @NotBlank
+    private Integer participantLimit;
+    private Boolean requestModeration;
+    private String stateAction;
     @Length(min = 3, max = 120)
     private String title;
+    private EventCommentState commentState;
 }

@@ -1,4 +1,4 @@
-package ru.practicum.main_service.dto;
+package ru.practicum.main_service.dto.category;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,8 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewCategoryDto {
+public class CategoryDto {
+    private Long id;
     @NotBlank
     @Length(max = 50)
     private String name;

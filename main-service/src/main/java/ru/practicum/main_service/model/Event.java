@@ -2,6 +2,7 @@ package ru.practicum.main_service.model;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.main_service.enums.EventCommentState;
 import ru.practicum.main_service.enums.EventState;
 
 import javax.persistence.*;
@@ -50,4 +51,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
     private String title;
+    @Column(name = "comment_state")
+    @Enumerated(EnumType.STRING)
+    private EventCommentState commentState;
 }

@@ -1,8 +1,9 @@
-package ru.practicum.main_service.dto;
+package ru.practicum.main_service.dto.compilation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.main_service.dto.event.EventShortDto;
 
 import java.util.Set;
 
