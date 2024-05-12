@@ -924,24 +924,15 @@
 											"    const api = new API(pm);\r",
 											"    const rnd = new RandomUtils();\r",
 											"\r",
-											"    let comment;\r",
 											"    try{\r",
 											"        const user = await api.addUser(rnd.getUser());\r",
 											"        pm.collectionVariables.set(\"uid\", user.id)\r",
 											"        const category = await api.addCategory(rnd.getCategory());\r",
 											"        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
 											"        pm.collectionVariables.set(\"eid\", event.id)\r",
-											"        comment = rnd.getComment();\r",
-											"        comment.comment = \"     \";\r",
 											"    } catch(err) {\r",
 											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
 											"    }\r",
-											"\r",
-											"    pm.request.body.update({\r",
-											"        mode: 'raw',\r",
-											"        raw: JSON.stringify(comment),\r",
-											"        options: { raw: { language: 'json' } }\r",
-											"    });\r",
 											"};\r",
 											"\r",
 											"const interval = setInterval(() => {}, 1000);\r",
@@ -989,6 +980,15 @@
 							"request": {
 								"method": "POST",
 								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"comment\": \"    \"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
 									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
