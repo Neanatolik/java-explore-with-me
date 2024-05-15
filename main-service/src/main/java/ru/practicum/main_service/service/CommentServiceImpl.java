@@ -1,12 +1,12 @@
 package ru.practicum.main_service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_service.dto.comment.CommentDto;
 import ru.practicum.main_service.dto.comment.NewCommentDto;
 import ru.practicum.main_service.dto.comment.UpdateCommentDto;
-import ru.practicum.main_service.dto.mapper.CommentMapper;
+import ru.practicum.main_service.dto.mapper.CommentMapperMapStruct;
 import ru.practicum.main_service.exceptions.BadRequest;
 import ru.practicum.main_service.exceptions.Conflict;
 import ru.practicum.main_service.exceptions.NotFoundException;
@@ -22,17 +22,13 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
+
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-
-    @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, UserRepository userRepository, EventRepository eventRepository) {
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
-    }
+    private final CommentMapperMapStruct commentMapperMapStruct;
 
     @Override
     public void deleteComment(long id) {
@@ -52,29 +48,32 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto postComment(long userId, long eventId, NewCommentDto newCommentDto) {
         Event event = getEventById(eventId);
         checkCommentState(eventId);
-        Comment comment = CommentMapper.fromNewCommentDto(newCommentDto, event, getUserById(userId));
-        return CommentMapper.toCommentDto(commentRepository.save(comment));
+        Comment comment = commentMapperMapStruct.fromNewCommentDto(newCommentDto, event, getUserById(userId), LocalDateTime.now());
+        return commentMapperMapStruct.toCommentDto(commentRepository.save(comment));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CommentDto getComment(long userId, long eventId, long commentId) {
         checkUser(userId);
         checkEvent(eventId);
         checkCommentState(eventId);
-        return CommentMapper.toCommentDto(commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment не найден", "Ошибка запроса")));
+        return commentMapperMapStruct.toCommentDto(commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment не найден", "Ошибка запроса")));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CommentDto getCommentForAdmin(long commentId) {
-        return CommentMapper.toCommentDto(commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment не найден", "Ошибка запроса")));
+        return commentMapperMapStruct.toCommentDto(commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment не найден", "Ошибка запроса")));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommentDto> getComments(long userId, long eventId) {
         checkUser(userId);
         checkEvent(eventId);
         checkCommentState(eventId);
-        return CommentMapper.mapToCommentDto(commentRepository.findByEventId(eventId));
+        return commentMapperMapStruct.mapToCommentDto(commentRepository.findByEventId(eventId));
     }
 
     @Override
@@ -83,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
         checkEvent(eventId);
         checkCommentState(eventId);
         Comment comment = checkAndUpdateComment(userId, commentId, updateCommentDto);
-        return CommentMapper.toCommentDto(commentRepository.save(comment));
+        return commentMapperMapStruct.toCommentDto(comment);
     }
 
     private void checkCommentState(long eventId) {

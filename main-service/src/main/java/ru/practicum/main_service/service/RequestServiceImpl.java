@@ -1,13 +1,14 @@
 package ru.practicum.main_service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main_service.dto.mapper.RequestMapper;
+import ru.practicum.main_service.dto.mapper.RequestMapperMapStruct;
 import ru.practicum.main_service.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.main_service.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.main_service.dto.request.ParticipationRequestDto;
 import ru.practicum.main_service.enums.EventState;
+import ru.practicum.main_service.enums.RequestState;
 import ru.practicum.main_service.exceptions.Conflict;
 import ru.practicum.main_service.exceptions.NotFoundException;
 import ru.practicum.main_service.model.Event;
@@ -17,40 +18,33 @@ import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.main_service.repository.RequestRepository;
 import ru.practicum.main_service.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static ru.practicum.main_service.enums.RequestState.*;
 
-
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
+
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-
-
-    @Autowired
-    public RequestServiceImpl(RequestRepository requestRepository,
-                              EventRepository eventRepository,
-                              UserRepository userRepository) {
-        this.requestRepository = requestRepository;
-        this.eventRepository = eventRepository;
-        this.userRepository = userRepository;
-    }
+    private final RequestMapperMapStruct requestMapperMapStruct;
 
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestById(long id, long eventId) {
-        return RequestMapper.mapToParticipationRequestDto(requestRepository.getReferenceByIds(eventId));
+        return requestMapperMapStruct.mapToParticipationRequestDto(requestRepository.getReferenceByIds(eventId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequests(long id) {
-        return RequestMapper.mapToParticipationRequestDto(requestRepository.findByUserId(id));
+        return requestMapperMapStruct.mapToParticipationRequestDto(requestRepository.findByUserId(id));
     }
 
     @Override
@@ -61,20 +55,20 @@ public class RequestServiceImpl implements RequestService {
         checkRequester(id, eventId);
         checkEventState(event.getState());
         checkParticipationLimit(event.getParticipantLimit(), requestRepository.getConfirmedRequestForEvent(eventId));
-        Request request = RequestMapper.newRequest(event, user);
+        Request request = newRequest(event, user);
         if (!event.getRequestModeration()) {
             request.setStatus(CONFIRMED);
         }
         Request requestFromDb = requestRepository.save(request);
         eventRepository.updateEvent(requestRepository.getConfirmedRequestForEvent(eventId), eventId);
-        return RequestMapper.toParticipationRequestDto(requestFromDb);
+        return requestMapperMapStruct.toParticipationRequestDto(requestFromDb);
     }
 
     @Override
     public ParticipationRequestDto cancelRequest(long id, long requestId) {
         Request request = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Данный request не найден", "Ошибка запроса"));
         request.setStatus(CANCELED);
-        return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
+        return requestMapperMapStruct.toParticipationRequestDto(requestRepository.save(request));
     }
 
     @Override
@@ -96,16 +90,28 @@ public class RequestServiceImpl implements RequestService {
                 if ((event.getConfirmedRequests() + size) > event.getParticipantLimit()) {
                     throw new Conflict("Превышен ParticipantLimit", "Ошибка подтверждения запросов");
                 }
-                e.setConfirmedRequests(RequestMapper.mapToParticipationRequestDto(listOfRequests));
+                e.setConfirmedRequests(requestMapperMapStruct.mapToParticipationRequestDto(listOfRequests));
                 break;
             case REJECTED:
-                e.setRejectedRequests(RequestMapper.mapToParticipationRequestDto(listOfRequests));
+                e.setRejectedRequests(requestMapperMapStruct.mapToParticipationRequestDto(listOfRequests));
                 size = 0;
                 break;
         }
-        requestRepository.saveAll(listOfRequests);
         eventRepository.incrementConfirmedRequests(eventId, size);
         return e;
+    }
+
+    private Request newRequest(Event event, User user) {
+        Request request = new Request();
+        request.setCreated(LocalDateTime.now());
+        request.setEvent(event);
+        request.setRequester(user);
+        if (event.getParticipantLimit() == 0) {
+            request.setStatus(RequestState.CONFIRMED);
+        } else {
+            request.setStatus(RequestState.PENDING);
+        }
+        return request;
     }
 
     private void checkParticipationLimit(int participantLimit, int requests) {

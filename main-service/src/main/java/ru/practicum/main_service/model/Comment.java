@@ -1,13 +1,13 @@
 package ru.practicum.main_service.model;
 
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.main_service.enums.CommentState;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+
+import static ru.practicum.MainService.DATE_FORMAT;
 
 @Getter
 @Setter
@@ -20,12 +20,10 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
-    @Length(max = 1000)
     private String comment;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     private LocalDateTime created;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     private LocalDateTime edited;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude

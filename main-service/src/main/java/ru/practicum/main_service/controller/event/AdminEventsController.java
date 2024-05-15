@@ -1,8 +1,8 @@
 package ru.practicum.main_service.controller.event;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,24 +17,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import static ru.practicum.MainService.DATE_FORMAT;
+
 @RestController
 @RequestMapping(path = "/admin/events")
+@RequiredArgsConstructor
 @Validated
 @Slf4j
 public class AdminEventsController {
-    private final EventService eventService;
 
-    @Autowired
-    public AdminEventsController(EventService eventService) {
-        this.eventService = eventService;
-    }
+    private final EventService eventService;
 
     @GetMapping
     public List<EventFullDto> getEvents(@RequestParam(required = false) List<Integer> users,
                                         @RequestParam(required = false) List<String> states,
                                         @RequestParam(required = false) List<Integer> categories,
-                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeStart,
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeEnd,
                                         @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                         @Positive @RequestParam(defaultValue = "10") int size) {
         log.info("GET /admin/events?users={}&states={}&categories={}&rangeStart={}&rangeEnd={}&from={}&size={}",

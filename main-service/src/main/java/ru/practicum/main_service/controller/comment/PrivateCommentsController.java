@@ -1,7 +1,7 @@
 package ru.practicum.main_service.controller.comment;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main_service.dto.comment.CommentDto;
@@ -14,15 +14,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users/{userId}/events/{eventId}/comments")
+@RequiredArgsConstructor
 @Slf4j
 public class PrivateCommentsController {
 
     private final CommentService commentService;
-
-    @Autowired
-    public PrivateCommentsController(CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     @DeleteMapping(path = "/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -47,7 +43,7 @@ public class PrivateCommentsController {
     public CommentDto changeComment(@PathVariable long userId,
                                     @PathVariable long eventId,
                                     @PathVariable long commentId,
-                                    @RequestBody UpdateCommentDto updateCommentDto) {
+                                    @Valid @RequestBody UpdateCommentDto updateCommentDto) {
         log.info("PATCH /users/{}/events/{}/comments/{}", userId, eventId, commentId);
         return commentService.changeComment(userId, eventId, commentId, updateCommentDto);
     }

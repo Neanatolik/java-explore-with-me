@@ -6,6 +6,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static ru.practicum.StatsServer.DATE_FORMAT;
+
 @Getter
 @Setter
 @Entity
@@ -20,6 +22,6 @@ public class Hit {
     private String app;
     private String uri;
     private String ip;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     private LocalDateTime timestamp;
 }

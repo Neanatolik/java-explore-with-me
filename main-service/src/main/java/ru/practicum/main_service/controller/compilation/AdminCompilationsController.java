@@ -1,5 +1,6 @@
 package ru.practicum.main_service.controller.compilation;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,11 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/admin/compilations")
+@RequiredArgsConstructor
 @Slf4j
 public class AdminCompilationsController {
-    private final CompilationService compilationService;
 
-    public AdminCompilationsController(CompilationService compilationService) {
-        this.compilationService = compilationService;
-    }
+    private final CompilationService compilationService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

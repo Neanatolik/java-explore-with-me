@@ -1,6 +1,9 @@
 package ru.practicum.main_service.dto.event;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.main_service.enums.EventCommentState;
 import ru.practicum.main_service.model.Location;
@@ -20,7 +23,7 @@ public class NewEventDto {
     @NotBlank
     @Length(min = 20, max = 7000)
     private String description;
-    @NonNull
+    @NotBlank
     private String eventDate;
     private Location location;
     @Builder.Default

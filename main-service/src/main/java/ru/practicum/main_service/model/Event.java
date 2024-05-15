@@ -8,6 +8,8 @@ import ru.practicum.main_service.enums.EventState;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static ru.practicum.MainService.DATE_FORMAT;
+
 @Getter
 @Setter
 @Entity
@@ -26,11 +28,11 @@ public class Event {
     private Category category;
     @Column(name = "confirmed_requests")
     private Integer confirmedRequests;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     @Column(name = "created_on")
     private LocalDateTime createdOn;
     private String description;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     @Column(name = "event_date")
     private LocalDateTime eventDate;
     @ManyToOne(fetch = FetchType.LAZY)

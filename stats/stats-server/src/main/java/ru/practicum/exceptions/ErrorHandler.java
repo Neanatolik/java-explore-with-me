@@ -10,6 +10,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static ru.practicum.StatsServer.DATE_FORMAT;
+
 @RestControllerAdvice
 public class ErrorHandler extends ResponseEntityExceptionHandler {
 
@@ -20,7 +22,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 e.getMessage(),
                 e.getReason(),
                 HttpStatus.NOT_FOUND.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
     @ExceptionHandler
@@ -30,7 +32,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 e.getMessage(),
                 e.getReason(),
                 HttpStatus.CONFLICT.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
 
@@ -41,7 +43,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 e.getMessage(),
                 e.getReason(),
                 HttpStatus.BAD_REQUEST.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
 }

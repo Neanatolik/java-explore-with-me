@@ -1,13 +1,13 @@
 package ru.practicum.main_service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_service.dto.compilation.CompilationDto;
 import ru.practicum.main_service.dto.compilation.NewCompilationDto;
 import ru.practicum.main_service.dto.compilation.UpdateCompilationRequest;
-import ru.practicum.main_service.dto.mapper.CompilationMapper;
+import ru.practicum.main_service.dto.mapper.CompilationMapperMapStruct;
 import ru.practicum.main_service.exceptions.BadRequest;
 import ru.practicum.main_service.exceptions.NotFoundException;
 import ru.practicum.main_service.model.Compilation;
@@ -22,19 +22,16 @@ import java.util.Set;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CompilationServiceImpl implements CompilationService {
+
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-
-    @Autowired
-    public CompilationServiceImpl(CompilationRepository compilationRepository, EventRepository eventRepository) {
-        this.compilationRepository = compilationRepository;
-        this.eventRepository = eventRepository;
-    }
+    private final CompilationMapperMapStruct compilationMapperMapStruct;
 
     @Override
     public CompilationDto saveCompilation(NewCompilationDto newCompilationDto) {
-        return CompilationMapper.toCompilationDto(compilationRepository.save(CompilationMapper.fromNewCompilationDto(newCompilationDto, getSetOfEvents(newCompilationDto.getEvents()))), null);
+        return compilationMapperMapStruct.toCompilationDto(compilationRepository.save(compilationMapperMapStruct.fromNewCompilationDto(newCompilationDto, getSetOfEvents(newCompilationDto.getEvents()))), null);
     }
 
     @Override
@@ -44,20 +41,20 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto changeCompilation(UpdateCompilationRequest updateCompilationRequest, long id) {
-        return CompilationMapper.toCompilationDto(compilationRepository.save(updateCompilation(compilationRepository.getReferenceById(id), updateCompilationRequest)), null);
+        return compilationMapperMapStruct.toCompilationDto(updateCompilation(compilationRepository.getReferenceById(id), updateCompilationRequest), null);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(boolean pinned, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        return CompilationMapper.mapToCompilationDto(compilationRepository.getCompilations(pinned, page));
+        return compilationMapperMapStruct.mapToCompilationDto(compilationRepository.getCompilations(pinned, page));
     }
 
     @Override
     @Transactional(readOnly = true)
     public CompilationDto getCompilationById(long id) {
-        return CompilationMapper.toCompilationDto(compilationRepository.findById(id).orElseThrow(() -> new NotFoundException("Данный compilation не найден", "Ошибка запроса")), null);
+        return compilationMapperMapStruct.toCompilationDto(compilationRepository.findById(id).orElseThrow(() -> new NotFoundException("Данный compilation не найден", "Ошибка запроса")), null);
     }
 
     private Compilation updateCompilation(Compilation compilation, UpdateCompilationRequest updateCompilationRequest) {

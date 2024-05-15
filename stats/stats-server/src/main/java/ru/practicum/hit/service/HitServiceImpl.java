@@ -1,24 +1,21 @@
 package ru.practicum.hit.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointHitDto;
-import ru.practicum.hit.model.HitMapper;
+import ru.practicum.hit.model.HitMapperMS;
 import ru.practicum.hit.repository.HitRepository;
 
 @Service
-@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class HitServiceImpl implements HitService {
     private final HitRepository hitRepository;
-
-
-    public HitServiceImpl(HitRepository hitRepository) {
-        this.hitRepository = hitRepository;
-    }
+    private final HitMapperMS hitMapperMS;
 
     @Override
     @Transactional
     public EndpointHitDto saveHit(EndpointHitDto endpointHit) {
-        return HitMapper.toEndpointHitDto(hitRepository.save(HitMapper.fromEndpointHitDto(endpointHit)));
+        return hitMapperMS.toEndpointHitDto(hitRepository.save(hitMapperMS.fromEndpointHitDto(endpointHit)));
     }
 }
