@@ -1,14 +1,14 @@
 package ru.practicum.main_service.controller.event;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main_service.dto.EventFullDto;
-import ru.practicum.main_service.dto.EventShortDto;
-import ru.practicum.main_service.dto.NewEventDto;
-import ru.practicum.main_service.dto.UpdateEventUserRequest;
+import ru.practicum.main_service.dto.event.EventFullDto;
+import ru.practicum.main_service.dto.event.EventShortDto;
+import ru.practicum.main_service.dto.event.NewEventDto;
+import ru.practicum.main_service.dto.event.UpdateEventUserRequest;
 import ru.practicum.main_service.service.EventService;
 
 import javax.validation.Valid;
@@ -18,15 +18,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users/{id}/events")
+@RequiredArgsConstructor
 @Validated
 @Slf4j
 public class PrivateEventsController {
-    private final EventService eventService;
 
-    @Autowired
-    public PrivateEventsController(EventService eventService) {
-        this.eventService = eventService;
-    }
+    private final EventService eventService;
 
     @GetMapping
     public List<EventShortDto> getEventsByUserId(@Positive @PathVariable long id,
@@ -38,15 +35,15 @@ public class PrivateEventsController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto getEventsByUserId(@Positive @PathVariable long id,
-                                          @Valid @RequestBody NewEventDto newEventDto) {
+    public EventFullDto saveEvent(@Positive @PathVariable long id,
+                                  @Valid @RequestBody NewEventDto newEventDto) {
         log.info("POST /users/{}/events", id);
         return eventService.saveEvent(id, newEventDto);
     }
 
     @GetMapping(path = "/{eventId}")
-    public EventFullDto getEventsByUserId(@Positive @PathVariable long id,
-                                          @Positive @PathVariable long eventId) {
+    public EventFullDto getEventById(@Positive @PathVariable long id,
+                                     @Positive @PathVariable long eventId) {
         log.info("GET /users/{}/events/{}", id, eventId);
         return eventService.getEventById(id, eventId);
     }

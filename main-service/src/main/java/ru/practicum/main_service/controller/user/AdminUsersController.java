@@ -1,12 +1,13 @@
 package ru.practicum.main_service.controller.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main_service.dto.NewUserRequest;
-import ru.practicum.main_service.dto.UserDto;
+import ru.practicum.main_service.dto.user.NewUserRequest;
+import ru.practicum.main_service.dto.user.UserDto;
 import ru.practicum.main_service.service.UserService;
 
 import javax.validation.Valid;
@@ -17,14 +18,12 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "/admin/users")
+@RequiredArgsConstructor
 @Validated
 @Slf4j
 public class AdminUsersController {
-    private final UserService userService;
 
-    public AdminUsersController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)

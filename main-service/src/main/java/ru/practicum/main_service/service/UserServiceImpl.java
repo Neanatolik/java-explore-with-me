@@ -1,12 +1,12 @@
 package ru.practicum.main_service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main_service.dto.NewUserRequest;
-import ru.practicum.main_service.dto.UserDto;
-import ru.practicum.main_service.dto.mapper.UserMapper;
+import ru.practicum.main_service.dto.mapper.UserMapperMapStruct;
+import ru.practicum.main_service.dto.user.NewUserRequest;
+import ru.practicum.main_service.dto.user.UserDto;
 import ru.practicum.main_service.exceptions.Conflict;
 import ru.practicum.main_service.exceptions.NotFoundException;
 import ru.practicum.main_service.repository.UserRepository;
@@ -16,19 +16,16 @@ import java.util.Objects;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserMapperMapStruct userMapperMapStruct;
 
     @Override
     public UserDto saveUser(NewUserRequest newUserRequest) {
         try {
-            return UserMapper.toUserDto(userRepository.save(UserMapper.fromNewUserRequest(newUserRequest)));
+            return userMapperMapStruct.toUserDto(userRepository.save(userMapperMapStruct.fromNewUserRequest(newUserRequest)));
         } catch (Exception e) {
             throw new Conflict("Введите другую почту", "Пользователь с данной почтой уже существует");
         }
@@ -39,8 +36,8 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         if (Objects.nonNull(ids)) {
-            return UserMapper.mapToUserDto(userRepository.findAllById(ids, page));
-        } else return UserMapper.mapToUserDto(userRepository.findAll(page));
+            return userMapperMapStruct.mapToUserDto(userRepository.findAllById(ids, page));
+        } else return userMapperMapStruct.mapToUserDto(userRepository.findAll(page));
     }
 
     @Override

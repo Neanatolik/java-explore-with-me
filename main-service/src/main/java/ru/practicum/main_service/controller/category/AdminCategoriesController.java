@@ -1,23 +1,21 @@
 package ru.practicum.main_service.controller.category;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main_service.dto.CategoryDto;
-import ru.practicum.main_service.dto.NewCategoryDto;
+import ru.practicum.main_service.dto.category.CategoryDto;
+import ru.practicum.main_service.dto.category.NewCategoryDto;
 import ru.practicum.main_service.service.CategoryService;
 
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/admin/categories")
+@RequiredArgsConstructor
 @Slf4j
 public class AdminCategoriesController {
     private final CategoryService categoryService;
-
-    public AdminCategoriesController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

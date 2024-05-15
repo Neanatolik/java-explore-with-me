@@ -1,24 +1,23 @@
 package ru.practicum.main_service.controller.compilation;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main_service.dto.CompilationDto;
-import ru.practicum.main_service.dto.NewCompilationDto;
-import ru.practicum.main_service.dto.UpdateCompilationRequest;
+import ru.practicum.main_service.dto.compilation.CompilationDto;
+import ru.practicum.main_service.dto.compilation.NewCompilationDto;
+import ru.practicum.main_service.dto.compilation.UpdateCompilationRequest;
 import ru.practicum.main_service.service.CompilationService;
 
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/admin/compilations")
+@RequiredArgsConstructor
 @Slf4j
 public class AdminCompilationsController {
-    private final CompilationService compilationService;
 
-    public AdminCompilationsController(CompilationService compilationService) {
-        this.compilationService = compilationService;
-    }
+    private final CompilationService compilationService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

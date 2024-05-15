@@ -1,12 +1,12 @@
 package ru.practicum.main_service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main_service.dto.CategoryDto;
-import ru.practicum.main_service.dto.NewCategoryDto;
-import ru.practicum.main_service.dto.mapper.CategoryMapper;
+import ru.practicum.main_service.dto.category.CategoryDto;
+import ru.practicum.main_service.dto.category.NewCategoryDto;
+import ru.practicum.main_service.dto.mapper.CategoryMapperMapStruct;
 import ru.practicum.main_service.exceptions.Conflict;
 import ru.practicum.main_service.exceptions.NotFoundException;
 import ru.practicum.main_service.model.Category;
@@ -17,21 +17,17 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
-
-    @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, EventRepository eventRepository) {
-        this.categoryRepository = categoryRepository;
-        this.eventRepository = eventRepository;
-    }
+    private final CategoryMapperMapStruct categoryMapperMapStruct;
 
     @Override
     public CategoryDto saveCategory(NewCategoryDto newCategoryDto) {
         checkCategory(newCategoryDto.getName());
-        return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.fromNewCategoryDto(newCategoryDto)));
+        return categoryMapperMapStruct.toCategoryDto(categoryRepository.save(categoryMapperMapStruct.fromNewCategoryDto(newCategoryDto)));
     }
 
     @Override
@@ -48,20 +44,20 @@ public class CategoryServiceImpl implements CategoryService {
             checkCategory(categoryDto.getName());
         }
         oldCategory.setName(categoryDto.getName());
-        return CategoryMapper.toCategoryDto(categoryRepository.save(oldCategory));
+        return categoryMapperMapStruct.toCategoryDto(oldCategory);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        return CategoryMapper.mapToCategoryDto(categoryRepository.findAll(page));
+        return categoryMapperMapStruct.mapToCategoryDto(categoryRepository.findAll(page));
     }
 
     @Override
     @Transactional(readOnly = true)
     public CategoryDto getCategoriesById(long id) {
-        return CategoryMapper.toCategoryDto(getCategoryById(id));
+        return categoryMapperMapStruct.toCategoryDto(getCategoryById(id));
     }
 
     private Category getCategoryById(long id) {

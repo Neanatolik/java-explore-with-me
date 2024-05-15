@@ -16,6 +16,8 @@ import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static ru.practicum.MainService.DATE_FORMAT;
+
 @RestControllerAdvice
 public class ErrorHandler extends ResponseEntityExceptionHandler {
 
@@ -26,7 +28,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 e.getMessage(),
                 e.getReason(),
                 HttpStatus.NOT_FOUND.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
     @ExceptionHandler
@@ -36,7 +38,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 e.getMessage(),
                 e.getReason(),
                 HttpStatus.CONFLICT.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
 
@@ -47,7 +49,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 e.getMessage(),
                 e.getReason(),
                 HttpStatus.BAD_REQUEST.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
     @ExceptionHandler
@@ -57,7 +59,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 e.getMessage(),
                 "Отсутсвует значение",
                 HttpStatus.BAD_REQUEST.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
     @Override
@@ -71,7 +73,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                         e.getMessage(),
                         "Ошибка валидации входящих данных",
                         HttpStatus.BAD_REQUEST.toString(),
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
         return handleExceptionInternal(
                 e, apiError, headers, HttpStatus.BAD_REQUEST, request);
     }
@@ -84,7 +86,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                         e.getMessage(),
                         "Отсутсвует входящее значение",
                         HttpStatus.BAD_REQUEST.toString(),
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
         return handleExceptionInternal(
                 e, apiError, headers, HttpStatus.BAD_REQUEST, request);
     }

@@ -1,25 +1,23 @@
 package ru.practicum.stats.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.dto.ViewStatsDtoIn;
 import ru.practicum.exceptions.BadRequest;
 import ru.practicum.hit.repository.HitRepository;
-import ru.practicum.stats.model.ViewStatsMapper;
+import ru.practicum.stats.model.ViewStatsMapperMS;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
-    private final HitRepository hitRepository;
 
-    @Autowired
-    public StatsServiceImpl(HitRepository hitRepository) {
-        this.hitRepository = hitRepository;
-    }
+    private final HitRepository hitRepository;
+    private final ViewStatsMapperMS viewStatsMapperMS;
 
     @Override
     public List<ViewStatsDto> getStats(List<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
@@ -38,7 +36,7 @@ public class StatsServiceImpl implements StatsService {
                 viewStatsDtos = hitRepository.countNonUniqueWithoutUris(start, end);
             }
         }
-        return ViewStatsMapper.mapToListViewStats(viewStatsDtos);
+        return viewStatsMapperMS.mapToListViewStats(viewStatsDtos);
     }
 
     private void checkDates(LocalDateTime start, LocalDateTime end) {

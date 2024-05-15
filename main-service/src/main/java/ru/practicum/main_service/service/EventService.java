@@ -1,6 +1,6 @@
 package ru.practicum.main_service.service;
 
-import ru.practicum.main_service.dto.*;
+import ru.practicum.main_service.dto.event.*;
 
 import java.time.LocalDateTime;
 import java.util.List;

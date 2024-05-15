@@ -2,10 +2,13 @@ package ru.practicum.main_service.model;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.main_service.enums.EventCommentState;
 import ru.practicum.main_service.enums.EventState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+
+import static ru.practicum.MainService.DATE_FORMAT;
 
 @Getter
 @Setter
@@ -25,11 +28,11 @@ public class Event {
     private Category category;
     @Column(name = "confirmed_requests")
     private Integer confirmedRequests;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     @Column(name = "created_on")
     private LocalDateTime createdOn;
     private String description;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     @Column(name = "event_date")
     private LocalDateTime eventDate;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,4 +53,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
     private String title;
+    @Column(name = "comment_state")
+    @Enumerated(EnumType.STRING)
+    private EventCommentState commentState;
 }

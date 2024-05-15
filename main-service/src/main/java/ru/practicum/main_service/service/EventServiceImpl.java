@@ -2,24 +2,24 @@ package ru.practicum.main_service.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.ViewStatsDto;
-import ru.practicum.main_service.dto.*;
-import ru.practicum.main_service.dto.mapper.EventMapper;
+import ru.practicum.main_service.dto.comment.CommentDto;
+import ru.practicum.main_service.dto.event.*;
+import ru.practicum.main_service.dto.mapper.CommentMapperMapStruct;
+import ru.practicum.main_service.dto.mapper.EventMapperMapStruct;
+import ru.practicum.main_service.enums.EventCommentState;
 import ru.practicum.main_service.enums.EventState;
 import ru.practicum.main_service.enums.RequestResponseState;
 import ru.practicum.main_service.exceptions.BadRequest;
 import ru.practicum.main_service.exceptions.Conflict;
 import ru.practicum.main_service.exceptions.NotFoundException;
 import ru.practicum.main_service.model.Event;
-import ru.practicum.main_service.repository.CategoryRepository;
-import ru.practicum.main_service.repository.EventRepository;
-import ru.practicum.main_service.repository.LocationRepository;
-import ru.practicum.main_service.repository.UserRepository;
+import ru.practicum.main_service.repository.*;
 import ru.practicum.stats.StatsClient;
 
 import java.time.LocalDateTime;
@@ -27,29 +27,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.practicum.MainService.DATE_FORMAT;
 import static ru.practicum.main_service.enums.EventState.*;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
     private final CategoryRepository categoryRepository;
     private final StatsClient statsClient;
     private final UserRepository userRepository;
-
-
-    @Autowired
-    public EventServiceImpl(EventRepository eventRepository,
-                            LocationRepository locationRepository,
-                            CategoryRepository categoryRepository,
-                            StatsClient statsClient,
-                            UserRepository userRepository) {
-        this.eventRepository = eventRepository;
-        this.locationRepository = locationRepository;
-        this.categoryRepository = categoryRepository;
-        this.statsClient = statsClient;
-        this.userRepository = userRepository;
-    }
+    private final CommentRepository commentRepository;
+    private final EventMapperMapStruct eventMapperMapStruct;
+    private final CommentMapperMapStruct commentMapperMapStruct;
 
     @Override
     @Transactional(readOnly = true)
@@ -61,49 +54,47 @@ public class EventServiceImpl implements EventService {
                 rangeStart, rangeEnd, page);
         List<String> url = events.stream().map(event -> "/events/" + event.getId()).collect(Collectors.toList());
         Map<Long, Integer> views = getMapViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), url);
-        return EventMapper.mapToEventFullDto(events, views);
+        return eventMapperMapStruct.mapToEventFullDto(events, views, getMapComments(events));
     }
 
     @Override
-    @Transactional
     public EventFullDto changeEvent(Long id, UpdateEventAdminRequest updateEventAdminRequest) {
         if (Objects.nonNull(updateEventAdminRequest.getLocation())) {
             locationRepository.save(updateEventAdminRequest.getLocation());
         }
         Event event = checkUpdateEventAdminRequestAndGetEvent(updateEventAdminRequest, id);
-        return EventMapper.toEventFullDto(eventRepository.save(event), getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id));
+        return eventMapperMapStruct.toEventFullDto(event, getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id), getListComments(id));
     }
 
     @Override
-    @Transactional
     public EventFullDto saveEvent(long id, NewEventDto newEventDto) {
         locationRepository.save(newEventDto.getLocation());
         checkNewEventDto(newEventDto);
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id);
-        return EventMapper.toEventFullDto(eventRepository.save(EventMapper.fromNewEventDto(newEventDto,
-                        categoryRepository.getReferenceById(newEventDto.getCategory()),
-                        userRepository.getReferenceById(id),
-                        LocalDateTime.now())),
-                views);
+        Event event = eventRepository.save(eventMapperMapStruct.fromNewEventDto(newEventDto,
+                categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> new NotFoundException("category не найдена", "Ошибка запроса")),
+                userRepository.findById(id).orElseThrow(() -> new NotFoundException("user не найден", "Ошибка запроса")),
+                LocalDateTime.now(), PENDING, 0L));
+        return eventMapperMapStruct.toEventFullDto(event, views, getListComments(event.getId()));
     }
 
     @Override
-    @Transactional
     public EventFullDto changeEventById(long id, long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event event = eventRepository.getReferenceById(eventId);
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("event не найден", "Ошбка запроса"));
         checkUpdateEventUserRequest(updateEventUserRequest, event.getState());
         if (Objects.nonNull(updateEventUserRequest.getLocation())) {
             locationRepository.save(updateEventUserRequest.getLocation());
         }
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id);
-        return EventMapper.toEventFullDto(eventRepository.save(updateEventDataAdmin(updateEventUserRequest, event)), views);
+        Event eventNew = updateEventData(updateEventUserRequest, event);
+        return eventMapperMapStruct.toEventFullDto(eventNew, views, getListComments(event.getId()));
     }
 
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getEventById(long id, long eventId) {
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), eventId);
-        return EventMapper.toEventFullDto(eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("event не найдено", "Ошибка запроса")), views);
+        return eventMapperMapStruct.toEventFullDto(eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("event не найдено", "Ошибка запроса")), views, getListComments(eventId));
     }
 
     @Override
@@ -116,7 +107,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.getByEventsByParameters(text, Objects.nonNull(categories) ? categories : Collections.emptyList(), paid, rangeStart, rangeEnd, page);
         List<String> url = events.stream().map(event -> "/events/" + event.getId()).collect(Collectors.toList());
         Map<Long, Integer> views = getMapViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), url);
-        return EventMapper.mapToEventShortDto(events, views);
+        return eventMapperMapStruct.mapToEventShortDto(events, views);
     }
 
     @Override
@@ -126,7 +117,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.getByUserId(id, page);
         List<String> url = events.stream().map(event -> "/events/" + event.getId()).collect(Collectors.toList());
         Map<Long, Integer> views = getMapViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), url);
-        return EventMapper.mapToEventShortDto(events, views);
+        return eventMapperMapStruct.mapToEventShortDto(events, views);
     }
 
     @Override
@@ -134,14 +125,26 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventByIdPublic(long id) {
         Event event = getEventById(id);
         Integer views = getViews(LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(2), id);
-        return EventMapper.toEventFullDto(event, views);
+        return eventMapperMapStruct.toEventFullDto(event, views, getListComments(id));
+    }
+
+    private Map<Long, List<CommentDto>> getMapComments(List<Event> events) {
+        Map<Long, List<CommentDto>> comments = new HashMap<>();
+        for (Event event : events) {
+            comments.put(event.getId(), commentMapperMapStruct.mapToCommentDto(commentRepository.findByEventId(event.getId())));
+        }
+        return comments;
+    }
+
+    private List<CommentDto> getListComments(long eventId) {
+        return commentMapperMapStruct.mapToCommentDto(commentRepository.findByEventId(eventId));
     }
 
     private Integer getViews(LocalDateTime start, LocalDateTime end, long id) {
         ObjectMapper objectMapper = new ObjectMapper();
         ResponseEntity<Object> re = statsClient.getHits(List.of("/events/" + id),
-                start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                start.format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
+                end.format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
                 true);
         List<ViewStatsDto> responseList = objectMapper.convertValue(re.getBody(), new TypeReference<>() {
         });
@@ -152,8 +155,8 @@ public class EventServiceImpl implements EventService {
     private Map<Long, Integer> getMapViews(LocalDateTime start, LocalDateTime end, List<String> requestList) {
         ObjectMapper objectMapper = new ObjectMapper();
         ResponseEntity<Object> re = statsClient.getHits(requestList,
-                start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                start.format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
+                end.format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
                 true);
         List<ViewStatsDto> responseList = objectMapper.convertValue(re.getBody(), new TypeReference<>() {
         });
@@ -173,12 +176,12 @@ public class EventServiceImpl implements EventService {
             throw new Conflict("Событие уже опубликовано", "Ошибка запроса");
         }
         if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
-            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
+            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).isBefore(LocalDateTime.now().plusHours(2))) {
                 throw new BadRequest("event date раньше чем через 2 часа", "Ошибка запроса");
             }
         }
         if (Objects.nonNull(updateEventUserRequest.getEventDate())) {
-            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
+            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).isBefore(LocalDateTime.now().plusHours(2))) {
                 throw new BadRequest("start позже чем end", "Ошибка запроса");
             }
         }
@@ -208,14 +211,17 @@ public class EventServiceImpl implements EventService {
         if (Objects.nonNull(u.getLocation())) {
             event.setLocation(u.getLocation());
         }
+        if (Objects.nonNull(u.getCommentState())) {
+            event.setCommentState(u.getCommentState());
+        }
         if (Objects.nonNull(u.getCategory())) {
             event.setCategory(categoryRepository.getReferenceById(Long.valueOf(u.getCategory())));
         }
         if (Objects.nonNull(u.getEventDate())) {
-            if (LocalDateTime.parse(u.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
+            if (LocalDateTime.parse(u.getEventDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).isBefore(LocalDateTime.now().plusHours(2))) {
                 throw new BadRequest("Дата начала события ранее чем через два часа с текущего момента", "Ошибка обновления данных");
             }
-            event.setEventDate(LocalDateTime.parse(u.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            event.setEventDate(LocalDateTime.parse(u.getEventDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)));
         }
         if (Objects.nonNull(u.getDescription())) {
             if (u.getDescription().isBlank()) {
@@ -263,6 +269,7 @@ public class EventServiceImpl implements EventService {
                         throw new Conflict("Уже отменен", "Ошибка запроса");
                     }
                     event.setState(CANCELED);
+                    event.setCommentState(EventCommentState.CLOSE);
                     break;
             }
         }
@@ -275,9 +282,12 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private Event updateEventDataAdmin(UpdateEventUserRequest u, Event event) {
+    private Event updateEventData(UpdateEventUserRequest u, Event event) {
         if (Objects.nonNull(u.getAnnotation())) {
             event.setAnnotation(u.getAnnotation());
+        }
+        if (Objects.nonNull(u.getCommentState())) {
+            event.setCommentState(u.getCommentState());
         }
         if (Objects.nonNull(u.getCategory())) {
             event.setCategory(categoryRepository.findById(Long.valueOf(u.getCategory())).orElseThrow(() -> new NotFoundException("Данная category не найдена", "Ошибка запроса")));
@@ -286,7 +296,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(u.getDescription());
         }
         if (Objects.nonNull(u.getEventDate())) {
-            event.setEventDate(LocalDateTime.parse(u.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            event.setEventDate(LocalDateTime.parse(u.getEventDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)));
         }
         if (Objects.nonNull(u.getLocation())) {
             event.setLocation(u.getLocation());
@@ -304,6 +314,7 @@ public class EventServiceImpl implements EventService {
             switch (RequestResponseState.valueOf(u.getStateAction())) {
                 case CANCEL_REVIEW:
                     event.setState(CANCELED);
+                    event.setCommentState(EventCommentState.CLOSE);
                     break;
                 case SEND_TO_REVIEW:
                     event.setState(PENDING);
@@ -317,7 +328,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkNewEventDto(NewEventDto newEventDto) {
-        if (LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(LocalDateTime.now().plusHours(2))) {
+        if (LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).isBefore(LocalDateTime.now().plusHours(2))) {
             throw new BadRequest("event date раньше чем через 2 часа", "Ошибка запроса");
         }
     }
